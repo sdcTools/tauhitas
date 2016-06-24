@@ -1,0 +1,145 @@
+# ====================================================
+# Detect platform on which we're running (limited)
+# ====================================================
+
+ifeq ($(OS),Windows_NT)
+	PLATFORM=MinGW-Windows
+else
+	PLATFORM=Linux
+endif
+
+# ====================================================
+# Configurable items
+# ====================================================
+
+ifeq ($(PLATFORM),Linux)
+	GNUDIR  = /usr/bin
+	SWIGDIR = /usr/local/bin
+	JAVADIR = /home/argus/jdk1.7.0_25
+else
+	GNUDIR  = c:/MinGW/bin
+	SWIGDIR = D:/Users/pwof/Documents/swig/swigwin-2.0.11
+	JAVADIR = c:/Progra~1/Java/jdk1.7.0_51
+endif
+
+LIBNAME       = tauhitas
+#MAJOR_VERSION = 1
+#MINOR_VERSION = 0
+JAVAPACKAGE   = tauargus.extern.tauhitas
+
+# ======================================================================
+# Set directories for input and output files
+# ======================================================================
+
+BUILDDIR = build
+DISTDIR  = dist
+ifdef debug
+	CONF = Debug
+else
+	CONF = Release
+endif
+BUILDFILEDIR = $(BUILDDIR)/$(CONF)/$(PLATFORM)
+DISTFILEDIR  = $(DISTDIR)/$(CONF)/$(PLATFORM)
+
+SRCDIR = .
+OBJDIR = $(BUILDFILEDIR)
+LIBDIR = $(DISTFILEDIR)
+OUTDIR = $(DISTFILEDIR)
+
+# ====================================================
+# Non configurable items
+# ====================================================
+
+INCDIRS = $(JAVADIR)/include 
+ifeq ($(PLATFORM),Linux)
+	INCDIRS += $(JAVADIR)/include/linux
+else
+	INCDIRS += $(JAVADIR)/include/Win32
+endif
+
+INCDIRS += ../Cplex/include/ilcplex 
+INCDIRS += ../XPress 
+INCDIRS += ../JJSource/InstallSCIP/scip-3.0.2/src 
+INCDIRS += ../JJSource/InstallSCIP/soplex-1.7.1/src
+
+CXX     = $(GNUDIR)/g++
+SWIG    = $(SWIGDIR)/swig
+LINK    = $(GNUDIR)/g++
+
+SFLAGS  = -c++ -I$(SRCDIR)/src -java -package $(JAVAPACKAGE) -outdir $(OUTDIR)
+CFLAGS  = $(INCLUDES) -Wall
+ifeq ($(PLATFORM),Linux)
+	CFLAGS += -fPIC
+endif
+ifdef debug
+	CFLAGS += -D_DEBUG -g -DSECBOUNDS
+else
+	CFLAGS += -DNDEBUG -O2 -DSECBOUNDS
+endif
+LDFLAGS = -shared 
+ifeq ($(PLATFORM),Linux)
+	LDFLAGS += $(CFLAGS) -Wl,-soname,$(SONAME)
+else
+	LDFLAGS += -Wl,--subsystem,windows -Wl,--kill-at
+endif
+
+# Exclude source files needed for a COM dll for Visual Basic 6.0
+#NOSOURCES         = $(SRCDIR)/GhmiterANCO.cpp $(SRCDIR)/TauArgCtrl.cpp $(SRCDIR)/StdAfx.cpp $(SRCDIR)/NewTauArgus.cpp
+SWIGSOURCES       = $(wildcard $(SRCDIR)/*.swg)
+GENERATED_SOURCES = $(patsubst $(SRCDIR)/%.swg,$(SRCDIR)/src/%_wrap.cpp,$(SWIGSOURCES))
+#SOURCES           = $(filter-out $(NOSOURCES),$(wildcard $(SRCDIR)/*.cpp))
+SOURCES           = $(wildcard $(SRCDIR)/src/*.cpp)
+
+OBJECTS  = $(patsubst $(SRCDIR)/src/%.cpp,$(OBJDIR)/%.o,$(SOURCES) $(GENERATED_SOURCES))
+INCLUDES = $(INCDIRS:%=-I%)
+
+ifeq ($(PLATFORM),Linux)
+	LIBBASENAME = lib$(LIBNAME).so
+	SONAME = $(LIBBASENAME) #.$(MAJOR_VERSION)
+	LIBFILENAME = $(SONAME) #.$(MINOR_VERSION)
+else
+	LIBFILENAME = $(LIBNAME).dll
+endif
+
+TARGET = $(LIBDIR)/$(LIBFILENAME)
+
+.PHONY: all clean
+
+.SECONDARY: $(SRCDIR)/src/hitasctrl_wrap.cpp
+
+all : $(OBJDIR) $(LIBDIR) $(TARGET)
+	
+clean :
+	rm -rf $(OBJDIR) $(LIBDIR)
+	rm -f $(SRCDIR)/src/*_wrap.*
+
+LDFLAGS += -L../CSP/dist/Debug/MinGW-Windows
+LDFLAGS += -L../Cplex/lib
+LDFLAGS += -L../XPress
+LDFLAGS += -L../JJSource/InstallSCIP/scip-3.0.2/lib
+LDFLAGS += -L../JJSource/InstallSCIP/soplex-1.7.1/lib
+LDFLAGS += -lcplex75 -lCSPlibXPRESS -lxprl -lxprs -lCSPlibSCIP -lscip -lnlpi.cppad -lobjscip -llpispx-3.0.2.mingw.x86.gnu.opt -lsoplex-1.7.1.mingw.x86.gnu.opt
+
+$(TARGET) : $(OBJECTS)
+	$(LINK) $(LDFLAGS) -o $@ $^
+#	cp -p $(TARGET) /opt/lib
+#	ln -sf /opt/lib/$(LIBFILENAME) /opt/lib/$(SONAME)
+#	ln -sf /opt/lib/$(SONAME) /opt/lib/$(LIBBASENAME)
+
+$(BUILDDIR) $(BUILDDIR)/$(CONF) $(OBJDIR) $(DISTDIR) $(DISTDIR)/$(CONF) $(LIBDIR) :
+	mkdir -p $@
+
+# pull in dependency info for *existing* .o files
+-include $(wildcard $(addsuffix .d, ${OBJECTS})) 
+
+#############################################################################
+# Implicit rules
+#############################################################################
+# compile and generate dependency info
+$(OBJDIR)/%.o : $(SRCDIR)/src/%.cpp
+	$(CXX) $(CFLAGS) -c -MMD -MP -MF $@.d $< -o $@ 
+
+$(OBJDIR)/%.o: makefile
+
+$(SRCDIR)/src/hitasctrl_wrap.cpp : $(SRCDIR)/hitasctrl.swg
+	$(SWIG) $(SFLAGS) -o $@ $<

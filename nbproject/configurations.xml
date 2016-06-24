@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="89">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>src/ADefs.h</itemPath>
+      <itemPath>src/AErrors.h</itemPath>
+      <itemPath>src/AHier.h</itemPath>
+      <itemPath>src/ALList.h</itemPath>
+      <itemPath>src/AMiscFunc.h</itemPath>
+      <itemPath>src/AMyIO.h</itemPath>
+      <itemPath>src/AMyLoadProb.h</itemPath>
+      <itemPath>src/AMyvector.h</itemPath>
+      <itemPath>src/ATabs.h</itemPath>
+      <itemPath>src/Aconst.h</itemPath>
+      <itemPath>src/Amain.h</itemPath>
+      <itemPath>src/HiTaSCtrl.h</itemPath>
+      <itemPath>src/WrapCSP.h</itemPath>
+      <itemPath>src/resource.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+      <itemPath>tauhitas.swg</itemPath>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/ALList.cpp</itemPath>
+      <itemPath>src/AMiscFunc.cpp</itemPath>
+      <itemPath>src/AMyLoadProb.cpp</itemPath>
+      <itemPath>src/ATabs.cpp</itemPath>
+      <itemPath>src/Adefs.cpp</itemPath>
+      <itemPath>src/Ahier.cpp</itemPath>
+      <itemPath>src/Amyio.cpp</itemPath>
+      <itemPath>src/HiTaSCtrl.cpp</itemPath>
+      <itemPath>src/WrapCSP.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>../Cplex/include/ilcplex</pElem>
+            <pElem>../XPress</pElem>
+            <pElem>../JJSource/InstallSCIP/scip-3.0.1/src</pElem>
+            <pElem>C:/Program Files/Java/jdk1.7.0_17/include</pElem>
+            <pElem>C:/Program Files/Java/jdk1.7.0_17/include/win32</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>SECBOUNDS</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>../CSP/dist/Debug/MinGW-Windows</pElem>
+            <pElem>../Cplex/lib</pElem>
+            <pElem>../XPress</pElem>
+            <pElem>../JJSource/InstallSCIP/scip-3.0.1/lib</pElem>
+            <pElem>../JJSource/InstallSCIP/Clp-1.15.3/lib</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibLibItem>CSPlibCPLEX</linkerLibLibItem>
+            <linkerLibLibItem>cplex75</linkerLibLibItem>
+            <linkerLibLibItem>CSPlibXPRESS</linkerLibLibItem>
+            <linkerLibLibItem>xprl</linkerLibLibItem>
+            <linkerLibLibItem>xprs</linkerLibLibItem>
+            <linkerLibLibItem>CSPlibSCIP</linkerLibLibItem>
+            <linkerLibLibItem>scip</linkerLibLibItem>
+            <linkerLibLibItem>lpiclp</linkerLibLibItem>
+            <linkerLibLibItem>nlpi.cppad</linkerLibLibItem>
+            <linkerLibLibItem>objscip</linkerLibLibItem>
+            <linkerLibLibItem>Clp</linkerLibLibItem>
+            <linkerLibLibItem>CoinUtils</linkerLibLibItem>
+          </linkerLibItems>
+          <commandLine>-Wl,--kill-at</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="src/ADefs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AErrors.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AHier.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/ALList.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/ALList.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMiscFunc.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/AMiscFunc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMyIO.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMyLoadProb.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/AMyLoadProb.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMyvector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/ATabs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/ATabs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Aconst.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Adefs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Ahier.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Amain.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Amyio.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/HiTaSCtrl.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/HiTaSCtrl.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/WrapCSP.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/WrapCSP.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/resource.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tauhitas.swg" ex="false" tool="3" flavor2="0">
+        <customTool>
+          <customToolCommandline>D:\pwof\Documents\swig\swigwin-2.0.9\swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o src/hitasctrl_wrap.cpp tauhitas.swg</customToolCommandline>
+          <customToolOutputs>hitasctrl_wrap.cpp hitasctrl_wrap.h</customToolOutputs>
+        </customTool>
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="src/ADefs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AErrors.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AHier.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/ALList.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/ALList.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMiscFunc.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/AMiscFunc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMyIO.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMyLoadProb.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/AMyLoadProb.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/AMyvector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/ATabs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/ATabs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Aconst.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Adefs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Ahier.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Amain.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Amyio.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/HiTaSCtrl.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/HiTaSCtrl.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/WrapCSP.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/WrapCSP.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/resource.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tauhitas.swg" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
