@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="89">
+<configurationDescriptor version="97">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -16,13 +16,14 @@
       <itemPath>src/Aconst.h</itemPath>
       <itemPath>src/Amain.h</itemPath>
       <itemPath>src/HiTaSCtrl.h</itemPath>
+      <itemPath>src/HiTaSCtrl_wrap.h</itemPath>
       <itemPath>src/WrapCSP.h</itemPath>
       <itemPath>src/resource.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
-      <itemPath>tauhitas.swg</itemPath>
+      <itemPath>hitasctrl.swg</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -35,6 +36,7 @@
       <itemPath>src/Ahier.cpp</itemPath>
       <itemPath>src/Amyio.cpp</itemPath>
       <itemPath>src/HiTaSCtrl.cpp</itemPath>
+      <itemPath>src/HiTaSCtrl_wrap.cpp</itemPath>
       <itemPath>src/WrapCSP.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -53,7 +55,6 @@
   <confs>
     <conf name="Debug" type="2">
       <toolsSet>
-        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
@@ -63,9 +64,9 @@
           <incDir>
             <pElem>../Cplex/include/ilcplex</pElem>
             <pElem>../XPress</pElem>
-            <pElem>../JJSource/InstallSCIP/scip-3.0.1/src</pElem>
-            <pElem>C:/Program Files/Java/jdk1.7.0_17/include</pElem>
-            <pElem>C:/Program Files/Java/jdk1.7.0_17/include/win32</pElem>
+            <pElem>../scip-3.1.1/src</pElem>
+            <pElem>C:/Program Files/Java/jdk1.8.0_65/include</pElem>
+            <pElem>C:/Program Files/Java/jdk1.8.0_65/include/win32</pElem>
           </incDir>
           <preprocessorList>
             <Elem>SECBOUNDS</Elem>
@@ -76,8 +77,8 @@
             <pElem>../CSP/dist/Debug/MinGW-Windows</pElem>
             <pElem>../Cplex/lib</pElem>
             <pElem>../XPress</pElem>
-            <pElem>../JJSource/InstallSCIP/scip-3.0.1/lib</pElem>
-            <pElem>../JJSource/InstallSCIP/Clp-1.15.3/lib</pElem>
+            <pElem>../scip-3.1.1/lib</pElem>
+            <pElem>../soplex-2.0.1/lib</pElem>
           </linkerAddLib>
           <linkerLibItems>
             <linkerLibLibItem>CSPlibCPLEX</linkerLibLibItem>
@@ -87,15 +88,20 @@
             <linkerLibLibItem>xprs</linkerLibLibItem>
             <linkerLibLibItem>CSPlibSCIP</linkerLibLibItem>
             <linkerLibLibItem>scip</linkerLibLibItem>
-            <linkerLibLibItem>lpiclp</linkerLibLibItem>
+            <linkerLibLibItem>lpispx</linkerLibLibItem>
             <linkerLibLibItem>nlpi.cppad</linkerLibLibItem>
             <linkerLibLibItem>objscip</linkerLibLibItem>
-            <linkerLibLibItem>Clp</linkerLibLibItem>
-            <linkerLibLibItem>CoinUtils</linkerLibLibItem>
+            <linkerLibLibItem>soplex</linkerLibLibItem>
           </linkerLibItems>
           <commandLine>-Wl,--kill-at</commandLine>
         </linkerTool>
       </compileType>
+      <item path="hitasctrl.swg" ex="false" tool="3" flavor2="0">
+        <customTool>
+          <customToolCommandline>D:\Users\pwof\Documents\swig\swigwin-3.0.0\swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg</customToolCommandline>
+          <customToolOutputs>./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h</customToolOutputs>
+        </customTool>
+      </item>
       <item path="src/ADefs.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/AErrors.h" ex="false" tool="3" flavor2="0">
@@ -136,22 +142,19 @@
       </item>
       <item path="src/HiTaSCtrl.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="src/HiTaSCtrl_wrap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/HiTaSCtrl_wrap.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/WrapCSP.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/WrapCSP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/resource.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="tauhitas.swg" ex="false" tool="3" flavor2="0">
-        <customTool>
-          <customToolCommandline>D:\pwof\Documents\swig\swigwin-2.0.9\swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o src/hitasctrl_wrap.cpp tauhitas.swg</customToolCommandline>
-          <customToolOutputs>hitasctrl_wrap.cpp hitasctrl_wrap.h</customToolOutputs>
-        </customTool>
-      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
-        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
@@ -170,6 +173,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="hitasctrl.swg" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/ADefs.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/AErrors.h" ex="false" tool="3" flavor2="0">
@@ -210,13 +215,15 @@
       </item>
       <item path="src/HiTaSCtrl.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="src/HiTaSCtrl_wrap.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/HiTaSCtrl_wrap.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/WrapCSP.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/WrapCSP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/resource.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="tauhitas.swg" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
