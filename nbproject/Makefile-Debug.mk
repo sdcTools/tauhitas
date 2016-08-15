@@ -43,6 +43,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/Ahier.o \
 	${OBJECTDIR}/src/Amyio.o \
 	${OBJECTDIR}/src/HiTaSCtrl.o \
+	${OBJECTDIR}/src/HiTaSCtrl_wrap.o \
 	${OBJECTDIR}/src/WrapCSP.o
 
 
@@ -60,7 +61,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../CSP/dist/Debug/MinGW-Windows -L../Cplex/lib -L../XPress -L../JJSource/InstallSCIP/scip-3.0.1/lib -L../JJSource/InstallSCIP/Clp-1.15.3/lib -lCSPlibCPLEX -lcplex75 -lCSPlibXPRESS -lxprl -lxprs -lCSPlibSCIP -lscip -llpiclp -lnlpi.cppad -lobjscip -lClp -lCoinUtils
+LDLIBSOPTIONS=-L../CSP/dist/Debug/MinGW-Windows -L../Cplex/lib -L../XPress -L../scip-3.1.1/lib -L../soplex-2.0.1/lib -lCSPlibCPLEX -lcplex75 -lCSPlibXPRESS -lxprl -lxprs -lCSPlibSCIP -lscip -llpispx -lnlpi.cppad -lobjscip -lsoplex
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -70,55 +71,61 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libtauhitas.${CND_DLIB_EXT}: ${OBJECT
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libtauhitas.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -Wl,--kill-at -shared
 
+.NO_PARALLEL:./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h
+./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h: hitasctrl.swg 
+	${MKDIR} -p ./src ./src
+	@echo Performing Custom Build Step
+	D:\Users\pwof\Documents\swig\swigwin-3.0.0\swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
+
 ${OBJECTDIR}/src/ALList.o: src/ALList.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/ALList.o src/ALList.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ALList.o src/ALList.cpp
 
 ${OBJECTDIR}/src/AMiscFunc.o: src/AMiscFunc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/AMiscFunc.o src/AMiscFunc.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/AMiscFunc.o src/AMiscFunc.cpp
 
 ${OBJECTDIR}/src/AMyLoadProb.o: src/AMyLoadProb.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/AMyLoadProb.o src/AMyLoadProb.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/AMyLoadProb.o src/AMyLoadProb.cpp
 
 ${OBJECTDIR}/src/ATabs.o: src/ATabs.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/ATabs.o src/ATabs.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ATabs.o src/ATabs.cpp
 
 ${OBJECTDIR}/src/Adefs.o: src/Adefs.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/Adefs.o src/Adefs.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Adefs.o src/Adefs.cpp
 
 ${OBJECTDIR}/src/Ahier.o: src/Ahier.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/Ahier.o src/Ahier.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Ahier.o src/Ahier.cpp
 
 ${OBJECTDIR}/src/Amyio.o: src/Amyio.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/Amyio.o src/Amyio.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Amyio.o src/Amyio.cpp
 
 ${OBJECTDIR}/src/HiTaSCtrl.o: src/HiTaSCtrl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
+
+${OBJECTDIR}/src/HiTaSCtrl_wrap.o: src/HiTaSCtrl_wrap.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
 
 ${OBJECTDIR}/src/WrapCSP.o: src/WrapCSP.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} $@.d
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../JJSource/InstallSCIP/scip-3.0.1/src -I/C/Program\ Files/Java/jdk1.7.0_17/include -I/C/Program\ Files/Java/jdk1.7.0_17/include/win32  -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/WrapCSP.o src/WrapCSP.cpp
-
-.NO_PARALLEL:hitasctrl_wrap.cpp hitasctrl_wrap.h
-hitasctrl_wrap.cpp hitasctrl_wrap.h: tauhitas.swg 
-	@echo Performing Custom Build Step
-	D:\pwof\Documents\swig\swigwin-2.0.9\swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o src/hitasctrl_wrap.cpp tauhitas.swg
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Cplex/include/ilcplex -I../XPress -I../scip-3.1.1/src -I/C/Program\ Files/Java/jdk1.8.0_65/include -I/C/Program\ Files/Java/jdk1.8.0_65/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/WrapCSP.o src/WrapCSP.cpp
 
 # Subprojects
 .build-subprojects:
@@ -127,7 +134,7 @@ hitasctrl_wrap.cpp hitasctrl_wrap.h: tauhitas.swg
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
 	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libtauhitas.${CND_DLIB_EXT}
-	${RM} hitasctrl_wrap.cpp hitasctrl_wrap.h
+	${RM} ./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h
 
 # Subprojects
 .clean-subprojects:
