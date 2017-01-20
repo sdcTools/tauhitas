@@ -267,12 +267,9 @@ static double AdjustMarginalWeights(JJTable& Tab, double MaxCost)  // MaxCost is
   // When weight becomes too large: scale all weights
   fac = MAXWEIGHT/Tab.costs[0];
 
-  if (fac < 1) // i.e. Tab.costs[0] > MAXWEIGHT
-  {
-	  for (m=0;m<Tab.Size();m++)
-		  Tab.costs[m] = ceil(fac*Tab.costs[m]);
-	  MaxCost = fac*MaxCost;
-  }
+  // PWOF 20170120: Allways scale in compliance with Optimal
+  for (m=0;m<Tab.Size();m++) Tab.costs[m] = fac*Tab.costs[m];
+  MaxCost = fac*MaxCost;
 
   MinMargWeight = Tab.costs[0];
   Tab.weight[0] = (int) ceil(Tab.costs[0]);
@@ -303,11 +300,12 @@ static void ScaleMarginalWeights(JJTable& Tab)
         double fac;
      
         // When weight of Total General is too large: scale all weights
-        fac = __min(1.0, MAXWEIGHT/Tab.costs[0]);
+        // PWOF 20170120: Allways scale in compliance with Optimal
+        fac = MAXWEIGHT/Tab.costs[0];
 
         for (m=0;m<Tab.Size();m++)
         {
-                Tab.costs[m] = ceil(fac*Tab.costs[m]);
+                Tab.costs[m] = fac*Tab.costs[m];
                 Tab.weight[m] = (int) ceil(Tab.costs[m]);
         }
 }
@@ -920,6 +918,14 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
       MinMargCost = 0.0;
       ScaleMarginalWeights(Tab);
   }
+  
+  FUit = OpenFile(PrepFile("TestTabOut.dat").c_str(),"a");
+    for (i=0;i<Tab.Size();i++)
+  {
+      fprintf(FUit,"%3d %15.5lf %5d\n",i,Tab.costs[i],Tab.weight[i]);
+  }
+  fclose(FUit);
+  
   if (PPDEBUG)
   {
       FUit = OpenFile(LogName.c_str(),"a");
