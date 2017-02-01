@@ -58,7 +58,8 @@ build: .build-post
 
 .build-post: .build-impl
 # Add your post 'build' code here...
-
+	"$(CP)" $(CND_ARTIFACT_DIR_$(CONF))/$(CND_ARTIFACT_NAME_$(CONF)) ../tauargus/tauhitas.dll
+	"$(CP)" $(CND_ARTIFACT_DIR_$(CONF))/*.java ../tauargus/src/tauargus/extern/tauhitas
 
 # clean
 clean: .clean-post
