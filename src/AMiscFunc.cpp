@@ -919,12 +919,15 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
       ScaleMarginalWeights(Tab);
   }
   
-  FUit = OpenFile(PrepFile("TestTabOut.dat").c_str(),"a");
-    for (i=0;i<Tab.Size();i++)
+  if (PPDEBUG)
   {
-      fprintf(FUit,"%3d %15.5lf %5d\n",i,Tab.costs[i],Tab.weight[i]);
+    FUit = OpenFile(PrepFile("TestTabOut.dat").c_str(),"a");
+        for (i=0;i<Tab.Size();i++)
+    {
+        fprintf(FUit,"%3d %15.5lf %5d\n",i,Tab.costs[i],Tab.weight[i]);
+    }
+    fclose(FUit);
   }
-  fclose(FUit);
   
   if (PPDEBUG)
   {
@@ -934,13 +937,9 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
       fclose(FUit);
   }
 
-  if (PPDEBUG) 
-	JJUit=OpenFile(PrepFile("JJUit.dat").c_str(),"a");
-  else 
-	JJUit=OpenFile(PrepFile("JJUit.dat").c_str(),"w");
-  
-  Tab.PrintData(*JJUit);
-  fclose(JJUit);
+  //PPDEBUG ? JJUit=OpenFile(PrepFile("JJUit.dat").c_str(),"a") : JJUit=OpenFile(PrepFile("JJUit.dat").c_str(),"w");
+  //Tab.PrintData(*JJUit);
+  //fclose(JJUit);
 
   start = clock();
   

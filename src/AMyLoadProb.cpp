@@ -168,7 +168,7 @@ static void LiftSubTableUp(JJTable& Tab)
 
 int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
 {
-        int i, j, m, t, s, k, Nzeros, pos, ncells, nsums, nlist;//, nAddCellsBase;
+        int i, j, m, t, s, k, Nzeros, pos, ncells, nsums, nlist, fac;//, nAddCellsBase;
         unsigned int usi;
         int* zeros, *position, *ncard, *list,  *weights;
         double *rhs, *data, *lb, *ub, *lpl, *upl, *spl;
@@ -314,11 +314,12 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
                 
                 if (Tab.MinInteriorVal < 0) 
 		{
-			data[m+usi] += (Tab.AdditionalConstraints[usi].ncard - 1)*(-Tab.MinInteriorVal + 1);
+                        fac = (Tab.AdditionalConstraints[usi].ncard - 1);
+			data[m+usi] += fac*(-Tab.MinInteriorVal + 1);
 			Tab.AdditionalCells[usi].value = data[m+usi];
-			ub[m+usi]   += -Tab.MinInteriorVal + 1;
+			ub[m+usi]   += fac*(-Tab.MinInteriorVal + 1);
 			Tab.AdditionalCells[usi].ub = ub[m+usi];
-			lb[m+usi]   += -Tab.MinInteriorVal + 1;
+			lb[m+usi]   += fac*(-Tab.MinInteriorVal + 1);
 			Tab.AdditionalCells[usi].lb = lb[m+usi];
 		}
 	}

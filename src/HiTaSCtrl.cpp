@@ -185,7 +185,8 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
     else    // At this point no known solver passed
     {
         logfile = OpenFile(LogName.c_str(),"a");
-        fprintf(logfile,"Unknown (or not yet implemented) solver specified: %s\n\n",Solver);
+        fprintf(logfile,"Unknown (or not yet implemented) solver specified: %s\n",Solver);
+        fprintf(logfile,"Currently only CPLEX, XPRESS, SCIP implemented for Modular and Optimal.\n\n");
         fclose(logfile);
         return(HITAS_UNKNOWNSOLVER);
     }
@@ -683,7 +684,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         double MaxCost; 
         double TotalTime, JJTotalTime=0;
 
-        char line[256];
+        char line[MAXLINE];
         
         StringMap TmpStringMap;
 
