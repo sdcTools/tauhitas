@@ -145,8 +145,10 @@ static void MarginalCell(JJTable& Tab, int m, cell* BCell, int &MargWeight)
 		Tab.upl[m] = fabs(BCell->Pbounds[1]);
 		Tab.NumberOfUnsafeCells++; // Count unsafe cells
                 break;
-      case 'z': Tab.status[m] = 'z';     // Empty cells remain empty cells
-		Tab.NumberOfSafeCells++; // Count safe cells;
+      case 'z': // Empty or protected cell, weight may be used to calculate scaling factor, so cannot be 0
+                Tab.status[m] = 'z';   // Empty cells remain empty cells
+		Tab.costs[m] = MargWeight; 
+                Tab.NumberOfSafeCells++; // Count safe cells
                 break;
       case 's': Tab.status[m] = 's';  // Safe cell, but use large weight (is marginal cell)
 		Tab.costs[m] = MargWeight;
@@ -191,12 +193,12 @@ static void SetCell(JJTable& Tab, int m, cell* BCell)
   if (BCell != NULL)
   {
     Tab.count[m] = BCell->CelCount;
-	Tab.data[m] = (double) BCell->value;
+    Tab.data[m] = (double) BCell->value;
 
     switch (BCell->status)
 	{
 	  case 'n':     Tab.status[m] = 'n'; // Cell belongs to table that will be skipped
-				break;
+			break;
 	  case 'b': // BackTrack cell, treat like primary but save info that it is a backtrack-cell
 			Tab.status[m] = 'b';
 		        Tab.costs[m] = 0;
@@ -214,7 +216,7 @@ static void SetCell(JJTable& Tab, int m, cell* BCell)
 		        Tab.NumberOfSafeCells++; // Count safe cells
 		        break;
 	  case 'z':     Tab.status[m] = 'z';
-		        Tab.costs[m] = 0;
+		        //Tab.costs[m] = 0;
 			Tab.NumberOfSafeCells++; // Count safe cells
 		        break;
 	  case 'm': 
@@ -293,14 +295,15 @@ static double AdjustMarginalWeights(JJTable& Tab, double MaxCost)  // MaxCost is
   return MinMargWeight;
 }
 
-// If necessary, scale all weight, such that largest weight equals MAXWEIGHT
+// Scale all weight, such that largest weight equals MAXWEIGHT
 static void ScaleMarginalWeights(JJTable& Tab)
 {
         int m;
         double fac;
-     
+
         // When weight of Total General is too large: scale all weights
-        // PWOF 20170120: Allways scale in compliance with Optimal
+        // PWOF 20170120: Always scale; in compliance with Optimal
+        // PWOF 20171128: Need Tab.costs[0] != 0
         fac = MAXWEIGHT/Tab.costs[0];
 
         for (m=0;m<Tab.Size();m++)
@@ -325,28 +328,29 @@ static void SetDistanceCostsPerDim(JJTable& Tab, int m, int DimIndex, int DimWei
 		TabDims[i] = Tab.N[Tab.Dim()-i+1];
 	TabDims[Tab.Dim()] = 1;
 
+        for (j=1;j<=Tab.Dim();j++)  // Needs to be done once for all cells in this row
+            Gijk[j] = Tab.ijk[j][m];
+        
 	for (i=1;i<Tab.N[DimIndex];i++)     // single row, excluding marginal
         {
           dist = Tab.ijk[DimIndex][m] - i;  // distance to primary within row
 					// negative when cell "precedes" the primary, 
 					// positive when cell "follows" the primary
 
-	  if (abs(dist)>=5)		// maximum distance, i.e., DimWeights[4]
+	  if (abs(dist)>=5)		// maximum distance, i.e., use DimWeights[4]
 		  weight = DimWeights[4];
 	  else 
 	  {
 		  if (dist)		// if dist==0 then nothing to do and index would go wrong
 			weight = DimWeights[abs(dist)-1];
 	  }
-
-	  for (j=1;j<=Tab.Dim();j++)
-		  Gijk[j] = Tab.ijk[j][m];
 	  
-	  Gijk[DimIndex] = i;
+	  Gijk[DimIndex] = i; // set final index of position for cell i in this row
 	  Calc_m(Gijk,TabDims,pos); 
 
-          if ((Tab.status[pos]=='s') && (weight<Tab.costs[pos])) Tab.costs[pos] = weight;
+          if (((Tab.status[pos]=='s') || (Tab.status[pos]=='z')) && (weight<Tab.costs[pos])) Tab.costs[pos] = weight;
         }
+        
 	Gijk.Free();
 	TabDims.Free();
 }
@@ -909,7 +913,7 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
 
   if (Tab.NumberOfUnsafeCells==Tab.Size()) return (2); // Only unsafe cells: nothing to do
 
-
+  
   // If DISTANCE !=0 we get MaxCost=0: no adjustment, only scaling up to MAXWEIGHT
   if (DoCosts)
       MinMargCost = (int) AdjustMarginalWeights(Tab,MaxCost);
