@@ -50,10 +50,12 @@ void Table::Make(Vector<int> Dims)
 cell* Table::operator[] (Vector<int> ijk)
 {
   int position,i;
-//  char buffer[256];
+  char buffer[256];
   if (ijk.size() != subdims.size())
   {
+      sprintf(buffer,"ijk.size()=%d should equal subdims.size()=%d\n",ijk.size(),subdims.size());
       LogPrintf(LogName,"Dimensions don't match.\n Something is seriously wrong in your table!\n");
+      LogPrintf(LogName,buffer);
       WriteErrorToLog(LogName,HITAS_TABDIMSDONTMATCH);
       throw(HITAS_TABDIMSDONTMATCH);      // Was exit()
   }

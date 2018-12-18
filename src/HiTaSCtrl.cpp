@@ -134,7 +134,7 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         FILE *ErrorFile;
 
         ferror = PrepFile("XPerror.log");
-
+        
         ierr = XPRSinit(NULL);
 
         if (ierr != 0)
@@ -1046,7 +1046,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                         //    realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, true, MaxCost);
 
                         realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, DISTANCE==0, MaxCost);
-                        
+
                         if (PPDEBUG) LogPrintf(LogName,".");
 
                         if (realdim == -11)    // Table is to be skipped, make a note about that in LogFile
@@ -1098,10 +1098,11 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                                     Tab.SaveBasisStatsBefore(TableList,BTab); // Save statuses of table before JJ
                                     try                                       // Apply protection (JJ)
                                     {
-                                        if (DISTANCE!=0) 
+                                        /*if (DISTANCE!=0) 
                                             ReturnCode = Suppress(Solver,Tab,realdim,false,MaxCost,Hierarchical,ObjVal);
                                         else
-                                            ReturnCode = Suppress(Solver,Tab,realdim,true,MaxCost,Hierarchical,ObjVal);
+                                            ReturnCode = Suppress(Solver,Tab,realdim,true,MaxCost,Hierarchical,ObjVal);*/
+                                        ReturnCode = Suppress(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal);
                                     }
                                     catch(int code)
                                     {

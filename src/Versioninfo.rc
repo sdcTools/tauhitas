@@ -1,7 +1,7 @@
 /* Version number is also stated in resource.h. Needs to be adjusted manually. */
 1                  VERSIONINFO
-FILEVERSION        4,2,4,0
-PRODUCTVERSION     4,2,4,0
+FILEVERSION        4,2,4,1
+PRODUCTVERSION     4,2,4,1
 FILETYPE           2
 BEGIN
   BLOCK "StringFileInfo"
@@ -10,12 +10,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", ""
       VALUE "FileDescription", "Modular approach for tau-Argus"
-      VALUE "FileVersion", "4.2.4.0"
+      VALUE "FileVersion", "4.2.4.1"
       VALUE "InternalName", ""
       VALUE "LegalCopyright", ""
       VALUE "OriginalFilename", "tauhitas.dll"
       VALUE "ProductName", "tauhitas.dll"
-      VALUE "ProductVersion", "4.2.4.0"
+      VALUE "ProductVersion", "4.2.4.1"
     END
   END
   BLOCK "VarFileInfo"

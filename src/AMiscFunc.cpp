@@ -268,7 +268,7 @@ static double AdjustMarginalWeights(JJTable& Tab, double MaxCost)  // MaxCost is
    
   // When weight becomes too large: scale all weights
   fac = MAXWEIGHT/Tab.costs[0];
-
+  
   // PWOF 20170120: Allways scale in compliance with Optimal
   for (m=0;m<Tab.Size();m++) Tab.costs[m] = fac*Tab.costs[m];
   MaxCost = fac*MaxCost;
@@ -616,12 +616,12 @@ static void DoSingletons(JJTable& Tab, CountInfo& Y, TotCountInfo& Yu, int NonFi
 
 static void SumPrimaryCells(TotCountInfo& Cc, std::string row)
 {
-    (Cc.find(row) != Cc.end()) ? Cc[row]++ : Cc[row] = 1;
+        (Cc.find(row) != Cc.end()) ? Cc[row]++ : Cc[row] = 1;
 }
 
 static void SumCountRuleCells(TotCountInfo& Cc, std::string row, int aantal)
 {
-    (Cc.find(row) != Cc.end()) ? Cc[row] += aantal : Cc[row] = aantal;
+        (Cc.find(row) != Cc.end()) ? Cc[row] += aantal : Cc[row] = aantal;
 }
 
 static void AddCountCell(CountInfo& C, std::string row, int pos, double value, int aantal)
@@ -683,7 +683,7 @@ static void FillJJ(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::
   std::vector<std::string> Rows;
   Rows.assign(dims, DummyString);
   
-  if (!DoCosts) MaxCost=0;
+  MaxCost=0.0; // Will change when DoCosts=true, if DoCosts=false, it will stay at 0.0
   
   Vector<int> Gijk;
   Gijk.Make(dims);
@@ -914,7 +914,7 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
   if (Tab.NumberOfUnsafeCells==Tab.Size()) return (2); // Only unsafe cells: nothing to do
 
   
-  // If DISTANCE !=0 we get MaxCost=0: no adjustment, only scaling up to MAXWEIGHT
+  // If DISTANCE !=0 (DoCosts==false) we get MaxCost=0: no adjustment, only scaling up to MAXWEIGHT
   if (DoCosts)
       MinMargCost = (int) AdjustMarginalWeights(Tab,MaxCost);
   else
@@ -928,7 +928,7 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
     FUit = OpenFile(PrepFile("TestTabOut.dat").c_str(),"a");
         for (i=0;i<Tab.Size();i++)
     {
-        fprintf(FUit,"%3d %15.5lf %5d\n",i,Tab.costs[i],Tab.weight[i]);
+        fprintf(FUit,"%3d %15.5lf %15.5lf %5d\n",i,Tab.data[i],Tab.costs[i],Tab.weight[i]);
     }
     fclose(FUit);
   }
@@ -1000,7 +1000,7 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
      case  0: {return(0);}
      case  2: {return(100);}   // Marginal suppressed: backtracking
 
-      case  5: {return(5);}     // Error: x-status
+     case  5: {return(5);}     // Error: x-status
      default: {return(-10);}   // Unknown error
   }
 }
