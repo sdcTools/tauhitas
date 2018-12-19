@@ -23,6 +23,7 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
+      <itemPath>C:/Users/pwof/Documents/Argus/tauhitas/src/Versioninfo.rc</itemPath>
       <itemPath>hitasctrl.swg</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
@@ -51,6 +52,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>C:\Users\pwof\Documents\Argus\tauhitas</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Debug" type="2">
@@ -62,12 +66,13 @@
       <compileType>
         <ccTool>
           <incDir>
-            <pElem>../Cplex/Cplex75/include/ilcplex</pElem>
-            <pElem>../XPress</pElem>
-            <pElem>../scip-3.1.1/src</pElem>
-            <pElem>C:/Program Files (x86)/Java/jdk1.7.0_51/include</pElem>
-            <pElem>C:/Program Files (x86)/Java/jdk1.7.0_51/include/win32</pElem>
+            <pElem>../Solvers/Cplex/Cplex75/include/ilcplex</pElem>
+            <pElem>../Solvers/XPress</pElem>
+            <pElem>../Solvers/scip-3.1.1/src</pElem>
+            <pElem>C:/Program Files (x86)/Java/jdk1.7.0_80/include</pElem>
+            <pElem>C:/Program Files (x86)/Java/jdk1.7.0_80/include/win32</pElem>
           </incDir>
+          <commandLine>-m32 -ggdb</commandLine>
           <preprocessorList>
             <Elem>SECBOUNDS</Elem>
           </preprocessorList>
@@ -75,11 +80,12 @@
         <linkerTool>
           <linkerAddLib>
             <pElem>../CSP/dist/Debug/MinGW-Windows</pElem>
-            <pElem>../Cplex/Cplex75/lib</pElem>
-            <pElem>../XPress</pElem>
-            <pElem>../scip-3.1.1/lib</pElem>
-            <pElem>../soplex-2.0.1/lib</pElem>
+            <pElem>../Solvers/Cplex/Cplex75/lib</pElem>
+            <pElem>../Solvers/XPress</pElem>
+            <pElem>../Solvers/scip-3.1.1/lib</pElem>
+            <pElem>../Solvers/soplex-2.0.1/lib</pElem>
           </linkerAddLib>
+          <additionalDep>${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o</additionalDep>
           <linkerLibItems>
             <linkerLibLibItem>CSPlibCPLEX</linkerLibLibItem>
             <linkerLibLibItem>cplex75</linkerLibLibItem>
@@ -92,13 +98,23 @@
             <linkerLibLibItem>nlpi.cppad</linkerLibLibItem>
             <linkerLibLibItem>objscip</linkerLibLibItem>
             <linkerLibLibItem>soplex</linkerLibLibItem>
+            <linkerOptionItem>${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o</linkerOptionItem>
           </linkerLibItems>
           <commandLine>-Wl,--kill-at</commandLine>
         </linkerTool>
       </compileType>
+      <item path="C:/Users/pwof/Documents/Argus/tauhitas/src/Versioninfo.rc"
+            ex="false"
+            tool="3"
+            flavor2="0">
+        <customTool>
+          <customToolCommandline>windres ./src/Versioninfo.rc ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o</customToolCommandline>
+          <customToolOutputs>${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o</customToolOutputs>
+        </customTool>
+      </item>
       <item path="hitasctrl.swg" ex="false" tool="3" flavor2="0">
         <customTool>
-          <customToolCommandline>E:/W7/Users/Peter-Paul/MyDocuments/Thuiswerk/Programmatuur/swigwin-3.0.2/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg</customToolCommandline>
+          <customToolCommandline>C:/swigwin-3.0.10/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg</customToolCommandline>
           <customToolOutputs>./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h</customToolOutputs>
         </customTool>
       </item>
@@ -173,6 +189,11 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="C:/Users/pwof/Documents/Argus/tauhitas/src/Versioninfo.rc"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="hitasctrl.swg" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/ADefs.h" ex="false" tool="3" flavor2="0">
