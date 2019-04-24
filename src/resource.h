@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-#define VERSIONNUMBER "4.2.4"
+#define VERSIONNUMBER "4.2.4.1"
 
 // ID's for JJ variables
 #define JJZERO          101
