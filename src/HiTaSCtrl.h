@@ -102,6 +102,7 @@ public:
     long GetJJconstantsInt(const int ConstName);
     double GetJJconstantsDbl(const int ConstName);
     std::string GetErrorString(int ErrorNumber);
+    std::string GetVersion();
     void SetDebugMode(bool debug);
     
     long FullJJ(const char* InFileJJ, const char* OutFile, long MaxTime, const char* ILMFile, const char* OutDir, const char* Solver);

@@ -132,7 +132,7 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         char slicmsg[256] = "";
         std::string ferror;
         FILE *ErrorFile;
-
+        
         ferror = PrepFile("XPerror.log");
         
         ierr = XPRSinit(NULL);
@@ -377,6 +377,10 @@ std::string HiTaSCtrl::GetErrorString(int ErrorNumber)
 {
     return ErrorStrings[ErrorNumber];
 }    
+
+std::string HiTaSCtrl::GetVersion(){
+    return VERSIONNUMBER;
+}
 
 void HiTaSCtrl::SetDebugMode(bool debug)
 {

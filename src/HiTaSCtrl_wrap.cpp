@@ -1943,6 +1943,21 @@ SWIGEXPORT jstring JNICALL Java_tauargus_extern_tauhitas_tauhitasJNI_HiTaSCtrl_1
 }
 
 
+SWIGEXPORT jstring JNICALL Java_tauargus_extern_tauhitas_tauhitasJNI_HiTaSCtrl_1GetVersion(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  HiTaSCtrl *arg1 = (HiTaSCtrl *) 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(HiTaSCtrl **)&jarg1; 
+  result = (arg1)->GetVersion();
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_tauargus_extern_tauhitas_tauhitasJNI_HiTaSCtrl_1SetDebugMode(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jboolean jarg2) {
   HiTaSCtrl *arg1 = (HiTaSCtrl *) 0 ;
   bool arg2 ;
