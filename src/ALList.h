@@ -19,7 +19,7 @@
 #define __LLIST_H
 
 #include <string.h>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <algorithm>
 #include <vector>

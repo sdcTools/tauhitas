@@ -19,7 +19,7 @@
 #define __MYIO_H
 
 #include <math.h>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 //#include <tchar.h>
 #include "Aconst.h"
@@ -49,9 +49,10 @@ void LogPrintf(std::string LogName, const char* LogMessage);
 
 void AReadHistory(Table BTab, int M, const char* FileName, const char* States);
 void ReadBTInfo(Table& BTab, int M, const char* FileName, const char* States);
-void PrintSubG(FILE &FName, Level* SGi, Vector< Vector<int> > SGTj);
+//void PrintSubG(FILE &FName, Level* SGi, Vector< Vector<int> > SGTj);
+void PrintSubG(FILE &FName, Level* SGi, std::vector< std::vector<int> > SGTj);
 void AddHistory(JJTable& BTtab, Table& BTab);
-void PrintBasisTabel(FILE& uitfile, Table& BasisTab, char* States, std::vector< std::vector<std::string> >& Vars, 
+/*void PrintBasisTabel(FILE& uitfile, Table& BasisTab, char* States, std::vector< std::vector<std::string> >& Vars, 
 			ExInCodeLijst& Codes, std::vector<StringMap>& BogusLists,
-                        Vector<int>& Coords, std::vector<std::string>& ExCoords);
+                        Vector<int>& Coords, std::vector<std::string>& ExCoords);*/
 #endif

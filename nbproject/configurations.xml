@@ -50,13 +50,14 @@
                    projectFiles="false"
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
+      <itemPath>NBMakefile</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Debug" type="2">
       <toolsSet>
-        <compilerSet>default</compilerSet>
+        <compilerSet>MinGW|MinGW</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
@@ -66,8 +67,9 @@
             <pElem>../Solvers/Cplex/Cplex75/include/ilcplex</pElem>
             <pElem>../Solvers/XPress/XPress_19</pElem>
             <pElem>../Solvers/scip-3.1.1/src</pElem>
-            <pElem>C:/Program Files (x86)/Java/jdk1.8.0_212/include</pElem>
-            <pElem>C:/Program Files (x86)/Java/jdk1.8.0_212/include/win32</pElem>
+            <pElem>../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include</pElem>
+            <pElem>../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32</pElem>
+            <pElem>../build/include</pElem>
           </incDir>
           <commandLine>-m32 -ggdb</commandLine>
           <preprocessorList>
@@ -102,7 +104,7 @@
       </compileType>
       <item path="hitasctrl.swg" ex="false" tool="3" flavor2="0">
         <customTool>
-          <customToolCommandline>E:/W7/Users/Peter-Paul/MyDocuments/Thuiswerk/Programmatuur/swigwin-3.0.12/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg</customToolCommandline>
+          <customToolCommandline>D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg</customToolCommandline>
           <customToolOutputs>./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h</customToolOutputs>
         </customTool>
       </item>

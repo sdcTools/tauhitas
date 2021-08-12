@@ -119,7 +119,8 @@ void PrintConstants(const char* WegFileName, int M)
   if (DISTANCE!=0)
   {
 	for (i=1;i<=M;i++)
-		fprintf(weg,"  D%d: %d %d %d %d %d\n",i,D[i][0],D[i][1],D[i][2],D[i][3],D[i][4]);
+            //fprintf(weg,"  D%d: %d %d %d %d %d\n",i,D[i][0],D[i][1],D[i][2],D[i][3],D[i][4]);
+            fprintf(weg,"  D%d: %d %d %d %d %d\n",i,D[i-1][0],D[i-1][1],D[i-1][2],D[i-1][3],D[i-1][4]);
   }
   fprintf(weg,"LINKED   : %*d\n",a,LINKED);
   fclose(weg);
@@ -149,12 +150,17 @@ void ReadConstants(const char* ConstFileName)
   LINKED=0;  // Default: no linked tables
   DOLIFTUP=false;
 
-  D.Make(4);
-  D[1][0]=D[1][1]=D[1][2]=D[1][3]=D[1][4]=1;
+  //D.Make(4);
+  D.resize(4);
+  for (int i=1; i<=4; i++){
+      D[i-1].resize(5,1);
+  }      
+  /*D[1][0]=D[1][1]=D[1][2]=D[1][3]=D[1][4]=1;
   D[2][0]=D[2][1]=D[2][2]=D[2][3]=D[2][4]=1;
   D[3][0]=D[3][1]=D[3][2]=D[3][3]=D[3][4]=1;
   D[4][0]=D[4][1]=D[4][2]=D[4][3]=D[4][4]=1;
-
+  */
+  
   APRIORI = 0; // Default: no APRIORI bounds
   APRIORILB = 0;
   APRIORIUB = 2000000000;
@@ -167,15 +173,16 @@ void ReadConstants(const char* ConstFileName)
     cat = strtok(line,";\t\n");
     if (!cat) continue;		            // Regel is leeg
     cat = strtok(line," =;\t\n");       // cat is nu "constante-naam"
-    for (i=0; i<MAXNUMCONST; i++)
+    for (i=0; i<MAXNUMCONST; i++){
  	if (strcmp(cat, constants[i])==0) // Gevonden!
  		break;
-	if (i>=MAXNUMCONST) // Niet gevonden!
-	{
-		LogPrintf(LogName,"Ignoring unknown constant ");
-                LogPrintf(LogName,cat);
-                LogPrintf(LogName," in constants-file\n");
-	}
+    }
+    if (i>=MAXNUMCONST) // Niet gevonden!
+    {
+	LogPrintf(LogName,"Ignoring unknown constant ");
+        LogPrintf(LogName,cat);
+        LogPrintf(LogName," in constants-file\n");
+    }
     cat = strtok(0,"=;\t\n");          // Rest van de regel tot een spatie
     switch (i) {
      case 0:	{MINCOUNT = atoi(cat)-1;
@@ -196,15 +203,20 @@ void ReadConstants(const char* ConstFileName)
 		 {
 			cat2 = _strspnp(cat," =;\t\n");
 			cat2 = strtok(cat2," =;\t\n");
-			D[1][0] = atoi(cat2); 
+			//D[1][0] = atoi(cat2); 
+                        D[0][0] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[1][1] = atoi(cat2); 
+			//D[1][1] = atoi(cat2); 
+                        D[0][1] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[1][2] = atoi(cat2); 
+			//D[1][2] = atoi(cat2); 
+                        D[0][2] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[1][3] = atoi(cat2); 
+			//D[1][3] = atoi(cat2); 
+                        D[0][3] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[1][4] = atoi(cat2); break;
+			//D[1][4] = atoi(cat2); break;
+                        D[0][4] = atoi(cat2); break;
 		 }
 		 else
                         LogPrintf(LogName,"D1 specified but not used because DISTANCE == 0\n");
@@ -214,15 +226,20 @@ void ReadConstants(const char* ConstFileName)
 		 {
 			cat2 = _strspnp(cat," =;\t\n");
 			cat2 = strtok(cat2," =;\t\n");
-			D[2][0] = atoi(cat2); 
+			//D[2][0] = atoi(cat2); 
+                        D[1][0] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[2][1] = atoi(cat2); 
+			//D[2][1] = atoi(cat2); 
+                        D[1][1] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[2][2] = atoi(cat2); 
+			//D[2][2] = atoi(cat2); 
+                        D[1][2] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[2][3] = atoi(cat2); 
+			//D[2][3] = atoi(cat2); 
+                        D[1][3] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[2][4] = atoi(cat2); break;
+			//D[2][4] = atoi(cat2); break;
+                        D[1][4] = atoi(cat2); break;
 		 }
                  else
                         LogPrintf(LogName,"D2 specified but not used because DISTANCE == 0\n");
@@ -232,15 +249,20 @@ void ReadConstants(const char* ConstFileName)
 		 {
 			cat2 = _strspnp(cat," =;\t\n");
 			cat2 = strtok(cat2," =;\t\n");
-			D[3][0] = atoi(cat2); 
+			//D[3][0] = atoi(cat2); 
+                        D[2][0] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[3][1] = atoi(cat2); 
+			//D[3][1] = atoi(cat2); 
+                        D[2][1] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[3][2] = atoi(cat2); 
+			//D[3][2] = atoi(cat2); 
+                        D[2][2] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[3][3] = atoi(cat2); 
+			//D[3][3] = atoi(cat2); 
+                        D[2][3] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[3][4] = atoi(cat2); break;
+			//D[3][4] = atoi(cat2); break;
+                        D[2][4] = atoi(cat2); break;
 		 }
 		 else
                         LogPrintf(LogName,"D3 specified but not used because DISTANCE == 0\n");
@@ -250,15 +272,20 @@ void ReadConstants(const char* ConstFileName)
 		 {
 		 	cat2 = _strspnp(cat," =;\t\n");
 			cat2 = strtok(cat2," =;\t\n");
-			D[4][0] = atoi(cat2); 
+			//D[4][0] = atoi(cat2); 
+                        D[3][0] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[4][1] = atoi(cat2); 
+			//D[4][1] = atoi(cat2); 
+                        D[3][1] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[4][2] = atoi(cat2); 
+			//D[4][2] = atoi(cat2); 
+                        D[3][2] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[4][3] = atoi(cat2); 
+			//D[4][3] = atoi(cat2); 
+                        D[3][3] = atoi(cat2); 
 			cat2=strtok(NULL," =;\t\n");
-			D[4][4] = atoi(cat2); break;
+			//D[4][4] = atoi(cat2); break;
+                        D[3][4] = atoi(cat2); break;
 		 }
 		 else 
                         LogPrintf(LogName,"D4 specified but not used because DISTANCE == 0\n");
@@ -274,12 +301,15 @@ void ReadConstants(const char* ConstFileName)
   }
 	if (DISTANCE)
 	{
-		MAXDISTANCE = __max(D[1][4],D[2][4]);
-		MAXDISTANCE = __max(MAXDISTANCE,D[3][4]);
-		MAXDISTANCE = __max(MAXDISTANCE,D[4][4]);
+            //MAXDISTANCE = __max(D[1][4],D[2][4]);
+            MAXDISTANCE = __max(D[0][4],D[1][4]);
+            //MAXDISTANCE = __max(MAXDISTANCE,D[3][4]);
+            MAXDISTANCE = __max(MAXDISTANCE,D[2][4]);
+            //MAXDISTANCE = __max(MAXDISTANCE,D[4][4]);
+            MAXDISTANCE = __max(MAXDISTANCE,D[3][4]);
 	}
 	else 
-		MAXDISTANCE = 0;
+            MAXDISTANCE = 0;
 
 	if (MINTABVAL < 0) DOLIFTUP = true; // 03/04/2009 PPdW If some negative cell-value, need to do something when suppressing
   fclose(ConstFile);
@@ -296,12 +326,15 @@ void AReadHistory(Table BTab, int M, const char* FileName, const char* States)
    LogPrintf(LogName,"\nReading and processing file ");
    LogPrintf(LogName,FileName);
    LogPrintf(LogName,"\n");
-   Vector<int> ijk;							  // Voor inlezen coordinaten
-   ijk.Make(M);
+   //Vector<int> ijk;							  // Voor inlezen coordinaten
+   std::vector<int> ijk;							  // Voor inlezen coordinaten
+   //ijk.Make(M);
+   ijk.resize(M);
    while (!feof(History))
    {
      for (i=1;i<=M;i++)
-       fscanf(History,"%d ",&ijk[i]);
+       //fscanf(History,"%d ",&ijk[i]);
+         fscanf(History,"%d ",&ijk[i-1]);
      fscanf(History,"%c\n",&BTab[ijk]->status);
      // Controleer ingelezen status
      if (strchr(States,BTab[ijk]->status) == NULL)
@@ -310,17 +343,19 @@ void AReadHistory(Table BTab, int M, const char* FileName, const char* States)
        LogPrintf(LogName,buffer);
        for (i=1;i<M;i++)
        {
-                LogPrintf(LogName,to_string(ijk[i]));
-                LogPrintf(LogName,", ");
+            //LogPrintf(LogName,to_string(ijk[i]));
+            LogPrintf(LogName,to_string(ijk[i-1]));
+            LogPrintf(LogName,", ");
        }
-       LogPrintf(LogName,to_string(ijk[M]));
+       //LogPrintf(LogName,to_string(ijk[M]));
+       LogPrintf(LogName,to_string(ijk[M-1]));
        LogPrintf(LogName,") read in file ");
        LogPrintf(LogName,FileName);
        LogPrintf(LogName,", continuing anyway\n");
      }
    }
    fclose(History);
-   ijk.Free();
+   //ijk.Free();
  }
  else 
  {
@@ -345,12 +380,15 @@ void ReadBTInfo(Table& BTab, int M, const char* FileName, const char* States)
         LogPrintf(LogName,FileName);
         LogPrintf(LogName,"\n");
    }
-   Vector<int> ijk;							  // Voor inlezen coordinaten
-   ijk.Make(M);
+   //Vector<int> ijk;							  // Voor inlezen coordinaten
+   std::vector<int> ijk;							  // Voor inlezen coordinaten
+   //ijk.Make(M);
+   ijk.resize(M);
    while (!feof(BTInfo))
    {
      for (i=1;i<=M;i++)
-       fscanf(BTInfo,"%d ",&ijk[i]);
+       //fscanf(BTInfo,"%d ",&ijk[i]);
+         fscanf(BTInfo,"%d ",&ijk[i-1]);
      fscanf(BTInfo,"%c",&BTab[ijk]->status);
      
 	 // Controleer ingelezen status
@@ -360,10 +398,12 @@ void ReadBTInfo(Table& BTab, int M, const char* FileName, const char* States)
 	   LogPrintf(LogName,buffer);
            for (i=1;i<M;i++)
 	   {
-                LogPrintf(LogName,to_string(ijk[i]));
+                //LogPrintf(LogName,to_string(ijk[i]));
+                LogPrintf(LogName,to_string(ijk[i-1]));
                 LogPrintf(LogName,", ");
 	   }
-           LogPrintf(LogName,to_string(ijk[M]));
+           //LogPrintf(LogName,to_string(ijk[M]));
+           LogPrintf(LogName,to_string(ijk[M-1]));
            LogPrintf(LogName,") read in file ");
            LogPrintf(LogName,FileName);
            LogPrintf(LogName,", continuing anyway\n");
@@ -389,7 +429,7 @@ void ReadBTInfo(Table& BTab, int M, const char* FileName, const char* States)
      fscanf(BTInfo,"\n"); 
    }
    fclose(BTInfo);
-   ijk.Free();
+   //ijk.Free();
  }
  else 
  {
@@ -402,25 +442,26 @@ void ReadBTInfo(Table& BTab, int M, const char* FileName, const char* States)
  }
 };
 
-void PrintSubG(FILE &FName, Level* SGi, Vector< Vector<int> > SGTj)
+void PrintSubG(FILE &FName, Level* SGi, std::vector< std::vector<int> > SGTj)
 {
-  int k, m;
-  unsigned int i;
-  if (&FName != NULL)
-  {
+  size_t i, k, m;
+  //if (&FName != NULL)   // References/addresses cannot be NULL, so is superfluous check
+  //{
         for (i=0;i<SGi->Gname.size();i++)
 	  fprintf(&FName,"%d",SGi->Gname[i]);
 	fprintf(&FName,"\t(");
 	for (k=1;k<=SGTj.size();k++)
 	{
 		fprintf(&FName,"(");
-		for (m=1;m<=SGTj[k].size();m++)
-			fprintf(&FName,"%d ",SGTj[k][m]);
+		//for (m=1;m<=SGTj[k].size();m++)
+                for (m=1;m<=SGTj[k-1].size();m++)
+			//fprintf(&FName,"%d ",SGTj[k][m]);
+                    fprintf(&FName,"%d ",SGTj[k-1][m-1]);
 		fprintf(&FName,") ");
 	}
 	fprintf(&FName,")\n");
-  }
-  else
+  //}
+  /*else
   {
         for (i=0;i<SGi->Gname.size();i++)
 	{
@@ -438,7 +479,7 @@ void PrintSubG(FILE &FName, Level* SGi, Vector< Vector<int> > SGTj)
 		LogPrintf(LogName,") ");
 	}
 	LogPrintf(LogName,")\n");
-  }
+  }*/
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -462,7 +503,8 @@ void AddHistory(JJTable& BTtab, Table& BTab)
      if ((BTab[BTtab.baseijk[0]]!=NULL) && (BTab[BTtab.baseijk[0]]->status=='b')) // Was: op 'm' testen
      {
        for (i=1;i<=BTtab.BDim();i++)
-         fprintf(Tmp,"%d ",BTtab.baseijk[0][i]);
+         //fprintf(Tmp,"%d ",BTtab.baseijk[0][i]);
+         fprintf(Tmp,"%d ",BTtab.baseijk[0][i-1]);
        fprintf(Tmp,"b %lf %lf\n",BTab[BTtab.baseijk[0]]->Pbounds[0],BTab[BTtab.baseijk[0]]->Pbounds[1]);
      }
   }	 
@@ -472,12 +514,14 @@ void AddHistory(JJTable& BTtab, Table& BTab)
 	{
                 marg = 1;
                 for (i=1;(i<=BTtab.Dim()) && (marg!=0);i++)
-                        marg *= BTtab.ijk[i][m];      // als marg==0 dan marginaal
+                        //marg *= BTtab.ijk[i][m];      // als marg==0 dan marginaal
+                        marg *= BTtab.ijk[i-1][m];      // als marg==0 dan marginaal
 
                 if ((marg==0) && (BTab[BTtab.baseijk[m]]!=NULL) && (BTab[BTtab.baseijk[m]]->status=='b')) // Was: op 'm' testen
                 {
                         for (i=1;i<=BTtab.BDim();i++)
-                                fprintf(Tmp,"%d ",BTtab.baseijk[m][i]);
+                            //fprintf(Tmp,"%d ",BTtab.baseijk[m][i]);
+                            fprintf(Tmp,"%d ",BTtab.baseijk[m][i-1]);
                         fprintf(Tmp,"b %lf %lf\n",BTab[BTtab.baseijk[m]]->Pbounds[0],BTab[BTtab.baseijk[m]]->Pbounds[1]);
                 }
 	}
@@ -489,7 +533,7 @@ void AddHistory(JJTable& BTtab, Table& BTab)
 //BogusLists bevat de lijsten met externe codes van boguslevels en hun equivalenten
 //Vars bevat de hierarchieen, MET de boguslevels erin
 //States bevat de statussen die geprint moeten worden
-void PrintBasisTabel(FILE& uitfile, Table& BasisTab, char* States, 
+/*void PrintBasisTabel(FILE& uitfile, Table& BasisTab, char* States, 
 		     std::vector< std::vector<std::string> >& Vars, 
 		     ExInCodeLijst& Codes, 
 		     std::vector<StringMap>& BogusLists,
@@ -504,7 +548,7 @@ void PrintBasisTabel(FILE& uitfile, Table& BasisTab, char* States,
   if (Coords.size() < BasisTab.Dim()) Coords.Grow(1); // Nog niet bij laatste coordinaat
   
   CoordSize=Coords.size();
-  ExCoords.reserve(CoordSize);
+  ExCoords.resize(CoordSize);
   
   for (i=1;i<=Vars[CoordSize-1].size();i++)
   { //Als niet Bogus dan direct overnemen uit Vars
@@ -532,4 +576,4 @@ void PrintBasisTabel(FILE& uitfile, Table& BasisTab, char* States,
 	}
   }
   Coords.Grow(-1);
-};
+};*/

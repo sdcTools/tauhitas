@@ -1,129 +1,125 @@
-#
-#  There exist several targets which are by default empty and which can be 
-#  used for execution of your targets. These targets are usually executed 
-#  before and after some main targets. They are: 
-#
-#     .build-pre:              called before 'build' target
-#     .build-post:             called after 'build' target
-#     .clean-pre:              called before 'clean' target
-#     .clean-post:             called after 'clean' target
-#     .clobber-pre:            called before 'clobber' target
-#     .clobber-post:           called after 'clobber' target
-#     .all-pre:                called before 'all' target
-#     .all-post:               called after 'all' target
-#     .help-pre:               called before 'help' target
-#     .help-post:              called after 'help' target
-#
-#  Targets beginning with '.' are not intended to be called on their own.
-#
-#  Main targets can be executed directly, and they are:
-#  
-#     build                    build a specific configuration
-#     clean                    remove built files from a configuration
-#     clobber                  remove all built files
-#     all                      build all configurations
-#     help                     print help mesage
-#  
-#  Targets .build-impl, .clean-impl, .clobber-impl, .all-impl, and
-#  .help-impl are implemented in nbproject/makefile-impl.mk.
-#
-#  Available make variables:
-#
-#     CND_BASEDIR                base directory for relative paths
-#     CND_DISTDIR                default top distribution directory (build artifacts)
-#     CND_BUILDDIR               default top build directory (object files, ...)
-#     CONF                       name of current configuration
-#     CND_PLATFORM_${CONF}       platform name (current configuration)
-#     CND_ARTIFACT_DIR_${CONF}   directory of build artifact (current configuration)
-#     CND_ARTIFACT_NAME_${CONF}  name of build artifact (current configuration)
-#     CND_ARTIFACT_PATH_${CONF}  path to build artifact (current configuration)
-#     CND_PACKAGE_DIR_${CONF}    directory of package (current configuration)
-#     CND_PACKAGE_NAME_${CONF}   name of package (current configuration)
-#     CND_PACKAGE_PATH_${CONF}   path to package (current configuration)
-#
-# NOCDDL
+######################################################################################
+# Makefile for building: TauHiTaS
+# use "make 32BIT=true" to compile for 32 bit system
+######################################################################################
+####### Compiler, tools and options
+# Environment
 
+MKDIR		    = mkdir
+RM		    = rm -f
+CP		    = cp
 
-# Environment 
-MKDIR=mkdir
-CP=cp
-CCADMIN=CCadmin
+32BIT		    = true
+#32BIT		    = false
 
+SWIGDIR		    = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1
 
-# build
-build: .build-post
+ifeq ($(32BIT), false)	# 64 bit assumed
+    BITS	    = -m64 -D_LP64
+    ARCH	    = x86_64
+    CND_PLATFORM    = MinGW-Windows64
+    JAVADIR	    = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_x64
+    GNUDIR	    = C:/Progra~1/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin
+else			# 32 bit assumed
+    BITS	    = -m32
+    ARCH	    = x86
+    CND_PLATFORM    = MinGW-Windows
+    JAVADIR	    = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_i686
+    GNUDIR	    = C:/Progra~2/mingw-w64/i686-8.1.0-win32-sjlj-rt_v6-rev0/mingw32/bin
+endif
 
-.build-pre:
-# Add your pre 'build' code here...
+JAVAINC		    = -I$(JAVADIR)/include -I$(JAVADIR)/include/win32
+CC		    = $(GNUDIR)/g++
+CXX		    = $(GNUDIR)/g++
+WINDRES		    = $(GNUDIR)/windres
+SWIG		    = $(SWIGDIR)/swig.exe
 
-.build-post: .build-impl
-# Add your post 'build' code here...
-	"$(CP)" $(CND_ARTIFACT_DIR_$(CONF))/$(CND_ARTIFACT_NAME_$(CONF)) ../tauargus/TauHitas.dll
-	"$(CP)" $(CND_ARTIFACT_DIR_$(CONF))/*.java ../tauargus/src/tauargus/extern/tauhitas
+# Macros
+CND_DLIB_EXT	    = dll
+CND_CONF	    = Debug
+CND_DISTDIR	    = dist
+CND_BUILDDIR	    = build
 
-# clean
-clean: .clean-post
+LIBNAME		    = TauHitas
+JAVAPACKAGE	    = tauargus.extern.tauhitas
 
-.clean-pre:
-# Add your pre 'clean' code here...
+CSPDIR		    = ../CSP/$(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
+CSPLIBS		    = -L$(CSPDIR) -lCSPlibCPLEX -lCSPlibXPRESS -lCSPlibSCIP
 
-.clean-post: .clean-impl
-# Add your post 'clean' code here...
+ifeq ($(32BIT),false)
+    CPXDIR	    = ../Solvers/Cplex/Cplex125/Windows/64bits
+    CPXLIBS	    = -L$(CPXDIR) -lcplex125
+else
+    CPXDIR	    = ../Solvers/Cplex/Cplex75
+    CPXLIBS	    = -L$(CPXDIR)/lib -lcplex75
+endif
+CPXINC		    = -I$(CPXDIR)/include/ilcplex
 
+XPRDIR		    = ../Solvers/XPress/XPress_28/$(ARCH)
+XPRINC		    = -I$(XPRDIR)
+XPRLIBS		    = -L$(XPRDIR) -lxprl -lxprs
 
-# clobber
-clobber: .clobber-post
+DIRLPS		    = ../Solvers/scip-3.1.1
+DIRSOPLEX	    = ../Solvers/soplex-2.0.1
+SCIPINC		    = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
+SOPLEXLIB	    = soplex-2.0.1.mingw.$(ARCH).gnu.opt
+NLPILIB		    = nlpi.cppad-3.1.1.mingw.$(ARCH).gnu.opt
+SCIPLIB		    = scip-3.1.1.mingw.$(ARCH).gnu.opt
+OBJSCIPLIB	    = objscip-3.1.1.mingw.$(ARCH).gnu.opt
+LPISPXLIB	    = lpispx-3.1.1.mingw.$(ARCH).gnu.opt
+SCIPLIBS	    = -L$(DIRLPS)/lib -L$(DIRSOPLEX)/lib -l$(OBJSCIPLIB) -l$(SCIPLIB) -l$(NLPILIB) -l$(LPISPXLIB) -l$(SOPLEXLIB)
 
-.clobber-pre:
-# Add your pre 'clobber' code here...
+# Object Directory
+OBJECTDIR	    = $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)
 
-.clobber-post: .clobber-impl
-# Add your post 'clobber' code here...
+# Object Files
+OBJECTFILES = \
+	$(OBJECTDIR)/src/ALList.o \
+	$(OBJECTDIR)/src/AMiscFunc.o \
+	$(OBJECTDIR)/src/AMyLoadProb.o \
+	$(OBJECTDIR)/src/ATabs.o \
+	$(OBJECTDIR)/src/Adefs.o \
+	$(OBJECTDIR)/src/Ahier.o \
+	$(OBJECTDIR)/src/Amyio.o \
+	$(OBJECTDIR)/src/HiTaSCtrl.o \
+	$(OBJECTDIR)/src/HiTaSCtrl_wrap.o \
+	$(OBJECTDIR)/src/WrapCSP.o
 
+# Link Libraries and Options
+LDLIBSOPTIONS	    = $(CSPLIBS) $(CPXLIBS) $(XPRLIBS) $(SCIPLIBS) $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)/src/Versioninfo.o
+# CC Compiler Flags
+SFLAGS		    = -c++ -I./src -java -package $(JAVAPACKAGE) -outdir $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
+#CXXFLAGS	    = -ggdb -DSECBOUNDS $(BITS) -fPIC -malign-double -std=c++11 -Wall
+#CXXFLAGS	    = -ggdb -g -Og -DSECBOUNDS $(BITS) -fPIC -std=c++11 -Wall
+CXXFLAGS	    = -ggdb -g -DSECBOUNDS $(BITS) -fPIC -std=c++11 -Wall
+LDFLAGS		    = $(CXXFLAGS) -Wl,--subsystem,windows -Wl,--kill-at -shared 
 
-# all
-all: .all-post
+.PHONY: all clean
+	
+all:
+	$(RM) -r $(CND_BUILDDIR)/$(CND_CONF)
+	$(RM) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/$(CSPCPX).$(CND_DLIB_EXT)
+	$(MKDIR) -p $(OBJECTDIR)/src
+	$(MKDIR) -p $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 
-.all-pre:
-# Add your pre 'all' code here...
+	$(WINDRES) ./src/Versioninfo.rc $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)/src/Versioninfo.o
+	$(SWIG) $(SFLAGS) -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/ALList.o src/ALList.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMiscFunc.o src/AMiscFunc.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMyLoadProb.o src/AMyLoadProb.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/ATabs.o src/ATabs.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/Adefs.o src/Adefs.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/Ahier.o src/Ahier.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/Amyio.o src/Amyio.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/WrapCSP.o src/WrapCSP.cpp
+	$(CXX) $(LDFLAGS) -o $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/libtauhitas.$(CND_DLIB_EXT) $(OBJECTFILES) $(LDLIBSOPTIONS) 
 
-.all-post: .all-impl
-# Add your post 'all' code here...
+# Copy .dll and .java files to tau-argus development directory
+	$(CP) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/libtauhitas.$(CND_DLIB_EXT) ../tauargus/$(LIBNAME).dll
+	$(CP) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/*.java ../tauargus/src/tauargus/extern/tauhitas
 
-
-# build tests
-build-tests: .build-tests-post
-
-.build-tests-pre:
-# Add your pre 'build-tests' code here...
-
-.build-tests-post: .build-tests-impl
-# Add your post 'build-tests' code here...
-
-
-# run tests
-test: .test-post
-
-.test-pre: build-tests
-# Add your pre 'test' code here...
-
-.test-post: .test-impl
-# Add your post 'test' code here...
-
-
-# help
-help: .help-post
-
-.help-pre:
-# Add your pre 'help' code here...
-
-.help-post: .help-impl
-# Add your post 'help' code here...
-
-
-
-# include project implementation makefile
-include nbproject/Makefile-impl.mk
-
-# include project make variables
-include nbproject/Makefile-variables.mk
+clean:
+	$(RM) -r $(CND_BUILDDIR)/$(CND_CONF)
+	$(RM) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/*.$(CND_DLIB_EXT)

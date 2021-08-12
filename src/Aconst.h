@@ -19,6 +19,7 @@
 #define __ACONST_H__
 
 #include "AMyvector.h"
+#include <vector>
 extern int MINCOUNT;     // Minimale aantal bijdragers
 extern double LOWERMARG; // Percentage voor ondergrens marge secundaire cel
 extern double UPPERMARG; // Percentage voor bovengrens marge secundaire cel
@@ -32,7 +33,8 @@ extern short DISTANCE;   // 1 als afstandsgewicht gebruikt moet worden
 //extern int D1[5];		 // de 5 gewichten in richting 1
 //extern int D2[5];		 // de 5 gewichten in richting 2
 //extern int D3[5];		 // de 5 gewichten in richting 3
-extern Vector<int[5]> D;
+//extern Vector<int[5]> D;
+extern std::vector< std::vector<int> > D;
 extern double MAXDISTANCE;
 extern double JJTime;    // om de tijd binnen de JJ-routines te meten
 extern double MAXWEIGHT; // Om kosten naar te schalen

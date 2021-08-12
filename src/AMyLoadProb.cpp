@@ -15,7 +15,7 @@
 * warranties or conditions of any kind, either express or implied.
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <math.h>
 #include <time.h>
 #include "Aconst.h"
@@ -42,62 +42,74 @@ extern bool PPDEBUG;
 // TabDims[1] = N[Dim], TabDims[2] = N[Dim-1], ..., TabDims[Dim-1] = N[2], TabDims[Dim] = 1
 
 // Converts position m into coordinates Gijk
-static bool Calc_ijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
+//static bool Calc_ijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
+static bool Calc_ijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
 {
-  int i;
+  size_t i;
   int prod=1;
   div_t x;
   int y=m;
   if (Gijk.size() == 1)
   {
-	Gijk[1] = m;
+	//Gijk[1] = m;
+        Gijk[0] = m;
 	prod = m;
   }
   else
   {
-	for (i=1;i<Gijk.size();i++)
-	{
-	    x = div(y,TabDims[i]);
-	    Gijk[Gijk.size()-i+1] = x.rem;
-	    y=x.quot;
-		prod *= Gijk[Gijk.size()-i+1];  // If at least one 0 then marginal cell
-	}
-    Gijk[1]=x.quot;
-    prod *= Gijk[Gijk.size()-i+1];
+    for (i=1;i<Gijk.size();i++)
+    {
+        //x = div(y,TabDims[i]);
+        x = div(y,TabDims[i-1]);
+        //Gijk[Gijk.size()-i+1] = x.rem;
+        Gijk[Gijk.size()-i] = x.rem;
+        y=x.quot;
+        //prod *= Gijk[Gijk.size()-i+1];  // If at least one 0 then marginal cell
+        prod *= Gijk[Gijk.size()-i];  // If at least one 0 then marginal cell
+    }
+    //Gijk[1]=x.quot;
+    Gijk[0]=x.quot;
+    //prod *= Gijk[Gijk.size()-i+1];
+    prod *= Gijk[Gijk.size()-i];
   }
   return (prod == 0); // If at least one 0 then marginal cell
 }
 
 // Converts position Gijk into co�rdinates m
-static bool Calc_m(Vector<int> Gijk, Vector<int> TabDims, int& m)
+//static bool Calc_m(Vector<int> Gijk, Vector<int> TabDims, int& m)
+static bool Calc_m(std::vector<int> Gijk, std::vector<int> TabDims, int& m)
 {
-	int i, prod=1;
+	int prod=1;
 	int factor=1;
 	
-	for (i=1;i<=TabDims.size();i++)
-		factor *= TabDims[i];		// Start met N[Dim]*N[Dim-1]*...*N[2]*1
+	for (size_t i=1;i<=TabDims.size();i++)
+            //factor *= TabDims[i];		// Start met N[Dim]*N[Dim-1]*...*N[2]*1
+            factor *= TabDims[i-1];		// Start met N[Dim]*N[Dim-1]*...*N[2]*1
 	
 	m = 0;
-	for (i=1;i<=Gijk.size();i++)
+	for (size_t i=1;i<=Gijk.size();i++)
 	{
-		factor /= TabDims[TabDims.size()-i+1];  // i=1: deel door TabDims[Dim] = 1
-		m += Gijk[i]*factor;
-		prod *= Gijk[i];
+            //factor /= TabDims[TabDims.size()-i+1];  // i=1: deel door TabDims[Dim] = 1
+            factor /= TabDims[TabDims.size()-i];  // i=1: deel door TabDims[Dim] = 1
+            //m += Gijk[i]*factor;
+            m += Gijk[i-1]*factor;
+            //prod *= Gijk[i];
+            prod *= Gijk[i-1];
 	}
 	return (prod == 0); // If at least one 0 then marginal cell
 }
 
-// Creates CellName from co�rdinates
-static std::string CellName(Vector<int> Gijk)
+// Creates CellName from coordinates
+static std::string CellName(std::vector<int> Gijk)
 {
-        int i;
         std::string tmpName;
         
         tmpName.append("x");
-        for (i=1;i<=Gijk.size();i++)
+        for (size_t i=1;i<=Gijk.size();i++)
         {
             tmpName.append("-");
-            tmpName.append(to_string(Gijk[i]));
+            //tmpName.append(to_string(Gijk[i]));
+            tmpName.append(to_string(Gijk[i-1]));
 	}
 
 	return tmpName;
@@ -131,13 +143,15 @@ static void LiftSubTableUp(JJTable& Tab)
             Debug = fopen(buffer.c_str(),"a");
             fprintf(Debug,"Lifting Table\n");
 	    Tab.PrintData(*Debug);
+            fclose(Debug);
 	}
 
 	for (m=0;m<Tab.Size();m++)
 	{
 		marg=1;
 		for (i=1;i<=Dim;i++)
-			marg *= Tab.ijk[i][m];
+			//marg *= Tab.ijk[i][m];
+                        marg *= Tab.ijk[i-1][m];
 
 		if (marg != 0) // Interior cell
 		{
@@ -150,7 +164,8 @@ static void LiftSubTableUp(JJTable& Tab)
 			fac = 1;
 			for (i=1;i<=Dim;i++)
 			{
-				if (Tab.ijk[i][m] == 0) fac *= (Tab.N[i] - 1);
+                            //if (Tab.ijk[i][m] == 0) fac *= (Tab.N[i] - 1);
+                            if (Tab.ijk[i-1][m] == 0) fac *= (Tab.N[i-1] - 1);
 			}
 			Tab.data[m] += fac*(-Tab.MinInteriorVal + 1);
 			Tab.lb[m] += fac*(-Tab.MinInteriorVal + 1);		// Maybe set to 0?
@@ -160,9 +175,14 @@ static void LiftSubTableUp(JJTable& Tab)
 
 	if (PPDEBUG)
 	{
-		fprintf(Debug,"Lifted to\n");
-		Tab.PrintData(*Debug);
-		fclose(Debug);
+            buffer.clear();
+            buffer.append(OUTDIR);
+            buffer.append("Lifting.log");
+            
+            Debug = fopen(buffer.c_str(),"a");
+            fprintf(Debug,"Lifted to\n");
+            Tab.PrintData(*Debug);
+            fclose(Debug);
 	}
 }
 
@@ -178,11 +198,11 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
 	bool marginal;
         std::string tmpname;
 
-	Vector<int> Gijk;
-	Gijk.Make(Tab.Dim());
+	std::vector<int> Gijk;
+	Gijk.resize(Tab.Dim());
 
-	Vector<int> TabDims;
-	TabDims.Make(Tab.Dim());
+	std::vector<int> TabDims;
+	TabDims.resize(Tab.Dim());
         
         ////////////////////////////////////////////////////////////////////////////////////
 	// If negative cell value is present in interior then make cell values positive
@@ -198,7 +218,8 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
 
 	nsums = 0;     				// Number of sum-restrictions
         for (i=1;i<=Tab.Dim();i++)		// 1-dim: 1, 2-dim: N[1] + N[2], 3-dim: N[1]*N[2] + N[1]*N[3] + N[2]*N[3],
-		nsums += ncells/Tab.N[i];	// 4-dim: N[1]*N[2]*N[3] + N[1]*N[2]*N[4] + N[1]*N[3]*N[4] + N[2]*N[3]*N[4], n-dim: ...
+		//nsums += ncells/Tab.N[i];	// 4-dim: N[1]*N[2]*N[3] + N[1]*N[2]*N[4] + N[1]*N[3]*N[4] + N[2]*N[3]*N[4], n-dim: ...
+                nsums += ncells/Tab.N[i-1];	// 4-dim: N[1]*N[2]*N[3] + N[1]*N[2]*N[4] + N[1]*N[3]*N[4] + N[2]*N[3]*N[4], n-dim: ...
 
 	nlist = Tab.Dim()*ncells;
 
@@ -239,8 +260,10 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
 
 	// TabDims[1] = N[Dim], TabDims[2] = N[Dim-1], ..., TabDims[Dim-1] = N[2], TabDims[Dim] = 1
 	for (i=1;i<Tab.Dim();i++)
-		TabDims[i] = Tab.N[Tab.Dim()-i+1];
-	TabDims[Tab.Dim()] = 1;
+            //TabDims[i] = Tab.N[Tab.Dim()-i+1];
+            TabDims[i-1] = Tab.N[Tab.Dim()-i];
+	//TabDims[Tab.Dim()] = 1;
+        TabDims[Tab.Dim()-1] = 1;
 
 	// Construct sum-restrictions
 	t = s = 0;
@@ -265,20 +288,25 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
 		{
 			Nzeros = 0;
 			for (i=1;i<=Tab.Dim();i++)
-				if(Gijk[i] == 0) zeros[Nzeros++] = i;	// Which coordinates are zero? Final value of Nzeros is number of zero-coordinates.
+                            //if(Gijk[i] == 0) zeros[Nzeros++] = i;	// Which coordinates are zero? Final value of Nzeros is number of zero-coordinates.
+                            if(Gijk[i-1] == 0) zeros[Nzeros++] = i;	// Which coordinates are zero? Final value of Nzeros is number of zero-coordinates.
 			//Loop over one "zero-coordinate" at a time to construct the restriction in that direction
 			for (j=0;j<Nzeros;j++)
 			{
 				rhs[t] = 0;
-				for (k=0;k<Tab.N[zeros[j]];k++)
+				//for (k=0;k<Tab.N[zeros[j]];k++)
+                                for (k=0;k<Tab.N[zeros[j]-1];k++)
 				{
-					Gijk[zeros[j]] = k;			// Loop over zero-coordinate
-					Calc_m(Gijk,TabDims,pos);
-					val[s] = ( k ? 1 : -1 );
-                                        list[s++] = pos;
+                                    //Gijk[zeros[j]] = k;			// Loop over zero-coordinate
+                                    Gijk[zeros[j]-1] = k;			// Loop over zero-coordinate
+                                    Calc_m(Gijk,TabDims,pos);
+                                    val[s] = ( k ? 1 : -1 );
+                                    list[s++] = pos;
 				}
-				ncard[t++] = Tab.N[zeros[j]];
-				Gijk[zeros[j]] = 0;				// In case of more zeros, reset looped one to original value (== 0)
+				//ncard[t++] = Tab.N[zeros[j]];
+                                ncard[t++] = Tab.N[zeros[j]-1];
+				//Gijk[zeros[j]] = 0;				// In case of more zeros, reset looped one to original value (== 0)
+                                Gijk[zeros[j]-1] = 0;				// In case of more zeros, reset looped one to original value (== 0)
 			}
 		}
 	}
@@ -338,8 +366,8 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
         }
 
 	// Free memory
-	Gijk.Free();
-	TabDims.Free();
+	//Gijk.Free();
+	//TabDims.Free();
         for(m=0;m<ncells;m++)
         {
                 free( names[m] );
@@ -371,13 +399,13 @@ void PrintAdditionalInfo(std::vector<addcellinfo>& Cells, std::vector<addsuminfo
         unsigned int i;
 		
 	JJ = OpenFile(PrepFile("Tricks.dat").c_str(),"a");
-        fprintf(JJ,"Number of additional cells: %d\n",Cells.size());
+        fprintf(JJ,"Number of additional cells: %zu\n",Cells.size());
         for (i=0; i<Cells.size();i++)
 	{
 		fprintf(JJ,"%15s %15.5lf %5d %c %15.5lf %15.5lf %15.5lf %15.5lf %15.5lf\n",names[i0+i],Cells[i].value,Cells[i].weight,Cells[i].status,
 						Cells[i].lb,Cells[i].ub,Cells[i].lpl,Cells[i].upl,Cells[i].spl);
 	}
-        fprintf(JJ,"Number of additional constraints: %d\n",Constraints.size());
+        fprintf(JJ,"Number of additional constraints: %zu\n",Constraints.size());
         for (i=0;i<Constraints.size();i++)
 	{
 		fprintf(JJ,"%1.0lf %3d: ",Constraints[i].rhs, Constraints[i].ncard);

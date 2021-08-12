@@ -27,7 +27,7 @@
 #include <sstream>
 #include <fstream>
 #include <stdlib.h>
-#include <stdio.h>
+#include <cstdio>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
     #define IMPORTFUNC __declspec(dllimport)
@@ -132,7 +132,7 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         char slicmsg[256] = "";
         std::string ferror;
         FILE *ErrorFile;
-        
+     
         ferror = PrepFile("XPerror.log");
         
         ierr = XPRSinit(NULL);
@@ -174,7 +174,8 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         struct tm * timestring;
     
         logfile = OpenFile(LogName.c_str(),"a");
-        time(&timestamp);
+        //time(&timestamp);
+        timestamp = time(NULL);
         timestring = localtime(&timestamp);
         strftime(buffer,256,"%H:%M:%S, %B %d, %Y",timestring);
         fprintf(logfile,"Start at %s\n",buffer);
@@ -241,15 +242,20 @@ void HiTaSCtrl::CleanUp()
     ErrorStrings.clear();
 }
 
-void HiTaSCtrl::FreeHierVector(Vector<Hierarchy>& VS)
+//void HiTaSCtrl::FreeHierVector(Vector<Hierarchy>& VS)
+void HiTaSCtrl::FreeHierVector(std::vector<Hierarchy>& VS)
 {
-    for (int i=1;i<=VS.size();i++)
+    for (size_t i=1;i<=VS.size();i++)
     {
-        FreeHierarchy(VS[i]);
-	VS[i].Free();
-	free(VS[i].name);
+        //FreeHierarchy(VS[i]);
+        FreeHierarchy(VS[i-1]);
+	//VS[i].Free();
+        VS[i-1].Free();
+	//free(VS[i].name);
+        free(VS[i-1].name);
     }
-    VS.Free();
+    //VS.Free();
+    VS.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -573,7 +579,7 @@ long HiTaSCtrl::FullJJ(const char* InFileJJ, const char* OutFile, long MaxTime, 
         	
 	try
 	{
-            CSPloadprob(Solver,INumCons,rhs,INumVar,data,weight,states,lpl,upl,lb,ub,names,ncard,list,val);                                       
+            CSPloadprob(Solver,INumCons,rhs,INumVar,data,weight,states,lpl,upl,lb,ub,names,ncard,list,val);
 	}
 	catch(int code)
 	{
@@ -679,7 +685,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         std::string TableList, TableName, TmpTableName, FileName, BTabFileName, TmpName;
         
         int JJaant=0, Totaant=0, aantBT=0;
-        int res, i, j, k, tel, M, ObjVal, ReturnCode, realdim;
+        int res, i, k, tel, M, ObjVal, ReturnCode, realdim;
         int MAXLINE=256;
 
         bool DaCapo=true;               // Boolean used to control backtracking
@@ -693,6 +699,8 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         StringMap TmpStringMap;
 
         std::vector<double> MaxBounds; // Vector containing maximum lpl and upl per table
+        MaxBounds.assign(2,0);         // intialized to 0 
+        
         std::vector<StringMap> BogusLists;
         std::vector< std::vector<std::string> > VarNames;
         
@@ -702,10 +710,16 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         ExInCodeLijst AllCodes;  // AllCodes contains codelists of spanning variables as defined in hierarchies
         ExInCodeLijst CodeLijst; // CodeLijst contains all codelists of spanning variables at lowest level. Only these codes are allowed in microdatafile
         
-        Vector<int> Vol;
-        Vector<int> BaseDims;            // Total number of categories (including Level 0) per dimension 
-        Vector< Vector< Vector<int> > > SubGTabs;
-        Vector< Hierarchy > VarStruc;    // Vector with hierarchical structures
+        //Vector<int> Vol;
+        std::vector<int> Vol;
+        //Vector<int> BaseDims;            // Total number of categories (including Level 0) per dimension 
+        std::vector<int> BaseDims;            // Total number of categories (including Level 0) per dimension 
+        //Vector< Vector< Vector<int> > > SubGTabs;
+        std::vector< std::vector< std::vector<int> > > SubGTabs;
+        //Vector< Hierarchy > VarStruc;    // Vector with hierarchical structures
+        std::vector< Hierarchy > VarStruc;    // Vector with hierarchical structures
+        Hierarchy DumHier;
+        DumHier.Init();
         
         Table BTab;                      // Base table
         JJTable Tab;                     // Table in format to feed to JJ-routines
@@ -783,19 +797,22 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         fclose(LogFile);
 
         ReadConstants(ParsFile);          // Read some additional constants
-        
+
         Info = OpenFile(FilesFile,"r");
         fscanf(Info, "%d\n", &M);        // M = number of variables
         PrintConstants(LogName.c_str(),M);      // Write constants to log-file
 
         // Can initialize now M is known
-        BaseDims.Make(M);                
-        VarStruc.Make(M);               
+        //BaseDims.Make(M);                
+        BaseDims.assign(M,0);                
+        //VarStruc.Make(M);               
+        VarStruc.assign(M,DumHier);               
         CodeLijst.assign(M,TmpSImap);
         AllCodes.assign(M,TmpSImap);
         BogusLists.assign(M,TmpStringMap);
+        //VarNames is vector< vector< string> >
         VarNames.assign(M,std::vector<std::string>(0));
-        
+
         // Start reading hierarchies and write info on hierarchies to hierinfo.dat
         TmpName = PrepFile("hierinfo.dat");
         Uit = OpenFile(TmpName.c_str(),"w");
@@ -809,19 +826,25 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         
         ReadCodeNames(FileName.c_str(), VarNames[i-1]); // VarNames has external code in correct order 
         
-        ReadHierarch(VarStruc[i], BaseDims[i], FileName.c_str(), true, BogusLists[i-1]);
+        //ReadHierarch(VarStruc[i], BaseDims[i], FileName.c_str(), true, BogusLists[i-1]);
+        ReadHierarch(VarStruc[i-1], BaseDims[i-1], FileName.c_str(), true, BogusLists[i-1]);
         // of Var[i] (return), total number of codes (return), from FileName, removing bogussen
-        
-        fprintf(Uit,"      name    pos  level  depth\n");
-        fprintf(Uit,"%10s %6d %6d %6d\n",VarStruc[i].name, VarStruc[i].position,VarStruc[i].Level(),VarStruc[i].Depth());
-   
-        Hierarchical *= VarStruc[i].Depth();
-        
-        PrintHierarch(VarStruc[i],*Uit);
 
-        AllCodes[i-1][VarStruc[i].name] = VarStruc[i].position;
+        fprintf(Uit,"      name    pos  level  depth\n");
+        //fprintf(Uit,"%10s %6d %6d %6d\n",VarStruc[i].name, VarStruc[i].position,VarStruc[i].Level(),VarStruc[i].Depth());
+        fprintf(Uit,"%10s %6d %6d %6d\n",VarStruc[i-1].name, VarStruc[i-1].position,VarStruc[i-1].Level(),VarStruc[i-1].Depth());
+   
+        //Hierarchical *= VarStruc[i].Depth();
+        Hierarchical *= VarStruc[i-1].Depth();
         
-        MakeCodeList(VarStruc[i], CodeLijst[i-1], AllCodes[i-1]);
+        //PrintHierarch(VarStruc[i],*Uit);
+        PrintHierarch(VarStruc[i-1],*Uit);
+
+        //AllCodes[i-1][VarStruc[i].name] = VarStruc[i].position;
+        AllCodes[i-1][VarStruc[i-1].name] = VarStruc[i-1].position;
+        
+        //MakeCodeList(VarStruc[i], CodeLijst[i-1], AllCodes[i-1]);
+        MakeCodeList(VarStruc[i-1], CodeLijst[i-1], AllCodes[i-1]);
         // AllCodes[i-1] has all codes of variable i, external code -> internal code
         // (excluding BogusCodes)
         // CodeLijst[i-1] has all codes (that can appear in the data) of variable i, external code -> internal code
@@ -857,11 +880,12 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
             ReadBTInfo(BTab,M,BTName.c_str(),"buzs");     // Read backtrack information if available
     
             // Read value and determine maximum protection levels of primary unsafe cells
-            MaxBounds.reserve(2);            // Currently only lpl and upl
-            MaxBounds[0] = MaxBounds[1] = 0; // Initialize to 0
+            //MaxBounds.resize(2);            // Currently only lpl and upl
+            //MaxBounds[0] = MaxBounds[1] = 0; // Initialize to 0
     
             // Change BTab to JJ-format
-            Vector< Vector<int> > IndexTab;
+            //Vector< Vector<int> > IndexTab;
+            std::vector< std::vector<int> > IndexTab;
 
             FireUpdateGroup(100);
             FireUpdateTables(1);
@@ -877,10 +901,11 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                 return(HITAS_SKIP_ERROR);
             }
 
-            for (i=1;i<=M;i++)
-                IndexTab[i].Free();
-            IndexTab.Free();
-
+            //Not needed for std::vector
+            //for (i=1;i<=M;i++)
+            //    IndexTab[i].Free();
+            //IndexTab.Free();
+            
             PPDEBUG ? JJUit=OpenFile(OutName.c_str(),"a") : JJUit=OpenFile(OutName.c_str(),"w");
 
             Tab.PrintData(*JJUit);
@@ -977,7 +1002,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                     LogPrintf(LogName,"Group 1\n");
                 }
 
-                for (i=1;i<=SubGs.size();i++)          // Grand total (0,0,0,...,0) does not need to be considered
+                for (i=1;i<=SubGs.size();i++)          // Grand total (0,0,0,...,0) does not need to be considered (assumed not to be primary unsafe)
                 {         
                     if (PPDEBUG)
                     {
@@ -989,7 +1014,8 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                         }
                     }
 
-                    DefineSubGTabs(VarStruc, *SubGs[i], SubGTabs); // SubGTabs[j] has coordinates (no values) of j-th table of subgroup i
+                    //DefineSubGTabs(VarStruc, *SubGs[i], SubGTabs); // SubGTabs[j] has coordinates (no values) of j-th table of subgroup i
+                    DefineSubGTabs(VarStruc, *SubGs[i], SubGTabs); // SubGTabs[j-1] has coordinates (no values) of j-th table of subgroup i
 
                     if (PPDEBUG) 
                     {
@@ -1023,16 +1049,17 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                         TmpTableName = TmpTableName + tmpchar;
                     }
 
-                    for (j=1;j<=SubGTabs.size();j++) // Loop over all tables in SubGroep i
+                    for (size_t j=1;j<=SubGTabs.size();j++) // Loop over all tables in SubGroep i
                     { 	   
                         if (PPDEBUG)
                         {
                             XUit = OpenFile(LogName.c_str(),"a");
-                            PrintSubG(*XUit,SubGs[i],SubGTabs[j]);
+                            //PrintSubG(*XUit,SubGs[i],SubGTabs[j]);
+                            PrintSubG(*XUit,SubGs[i],SubGTabs[j-1]);
                             fclose(XUit);
                         }
                                         
-                        MaxBounds.reserve(2);          // Currently only lpl and upl
+                        MaxBounds.resize(2);          // Currently only lpl and upl
                         MaxBounds[0] = MaxBounds[1] = 0.0001; // Initialize to epsilon
 		
                         if (PPDEBUG)			// Write info about "dirty tricks" in debug-mode
@@ -1049,7 +1076,8 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                         //else
                         //    realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, true, MaxCost);
 
-                        realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, DISTANCE==0, MaxCost);
+                        //realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, DISTANCE==0, MaxCost);
+                        realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);
 
                         if (PPDEBUG) LogPrintf(LogName,".");
 
@@ -1150,7 +1178,8 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                                     break;
                                 case 5: // Table containing status 'x' was returned
                                     XUit=OpenFile(XOutName.c_str(),"a");
-                                    PrintSubG(*XUit,SubGs[i],SubGTabs[j]);
+                                    //PrintSubG(*XUit,SubGs[i],SubGTabs[j]);
+                                    PrintSubG(*XUit,SubGs[i],SubGTabs[j-1]);
                                     fprintf(XUit,"\nAfter JJ:\n");
                                     Tab.PrintData(*XUit);
                                     fclose(XUit);
@@ -1183,21 +1212,26 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
 
                             LogPrintf(LogName,"\nInfeasible (sub)table problem, see JJUit.dat and InFeas.dat for problem table\nCoordinates of total general of problem table: ");
 
-                            Vol.Make(Tab.Dim());
+                            //Vol.Make(Tab.Dim());
+                            Vol.resize(Tab.Dim());
                             k=1;
                             for (tel=1;tel<=Tab.BDim();tel++)
-                                if (SubGTabs[j][tel][1] != 0) Vol[k++]=tel;
+                                //if (SubGTabs[j][tel][1] != 0) Vol[k++]=tel;
+                                if (SubGTabs[j-1][tel-1][0] != 0) {Vol[k-1]=tel; k++;}
 
                             for (k=1;k<Tab.Dim();k++)
                             {
-                                LogPrintf(LogName,VarNames[Vol[k]-1][Tab.baseijk[0][Vol[k]]].c_str());
+                                //LogPrintf(LogName,VarNames[Vol[k]-1][Tab.baseijk[0][Vol[k]]].c_str());
+                                LogPrintf(LogName,VarNames[Vol[k-1]-1][Tab.baseijk[0][Vol[k-1]-1]].c_str());
                                 LogPrintf(LogName,", ");
                             }
 		  
-                            LogPrintf(LogName,VarNames[Vol[Tab.Dim()]-1][Tab.baseijk[0][Vol[Tab.Dim()]]].c_str());
+                            //LogPrintf(LogName,VarNames[Vol[Tab.Dim()]-1][Tab.baseijk[0][Vol[Tab.Dim()]]].c_str());
+                            LogPrintf(LogName,VarNames[Vol[Tab.Dim()-1]-1][Tab.baseijk[0][Vol[Tab.Dim()-1]-1]].c_str());
                             LogPrintf(LogName,"\n");
 
-                            Vol.Free();
+                            //Vol.Free();
+                            Vol.clear();
 		  
                             j = SubGTabs.size() + 1; // to jump out of j-loop
                             i = SubGs.size() + 1;    // to jump out of i-loop
@@ -1229,7 +1263,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                     JJaant+=aant;
                     Totaant+=SubGTabs.size();
 
-                    FreeAll(SubGTabs);
+                    //FreeAll(SubGTabs);
 
 
                     if (DaCapo)               // BackTracking
@@ -1271,7 +1305,8 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
  
         // If finished completely, free all other memory
         FreeHierVector(VarStruc);
-        BaseDims.Free();
+        //BaseDims.Free();
+        BaseDims.clear();
 
         CSPFreeFileNames(Solver);
         CloseSolver(Solver);
@@ -1297,7 +1332,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
  
         //fcloseall();
 
-        D.Free();
+        //D.Free();
 
         return 0;
 }

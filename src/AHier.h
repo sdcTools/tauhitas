@@ -18,7 +18,7 @@
 #ifndef __HIER_H
 #define __HIER_H
 #include <malloc.h>
-#include <stdio.h>
+#include <cstdio>
 //#include <string.h>
 #include <stdlib.h>
 #include <map>
@@ -39,7 +39,7 @@ class Hierarchy
     const int Dim() const {return dim;};
     const int Level() const {return level;};
     void SetLevel(int n) {level = n;};
-	void SetDepth(int n) {depth = n;};
+    void SetDepth(int n) {depth = n;};
     void IncDepth(int n) {depth += n;};
     void IncDim(int n) {dim += n;};
     Hierarchy& Body() {return *body;};
@@ -52,7 +52,6 @@ class Hierarchy
     bool NoBody() const {return (body == NULL);};
 };
 
-//typedef CMap<CString,LPCSTR,CString,LPCSTR> StringMap;
 typedef std::map<std::string, std::string> StringMap;
 
 // Procedures voor/met Hierarchische structuren
@@ -61,11 +60,9 @@ void ReturnCat(Hierarchy& hier, int Lnr, Hierarchy& out);
 void ReturnDepth(Hierarchy& hier, int& Depth);
 void AddSubLevel(Hierarchy& hier, Hierarchy& Subhier);
 void ReadHierarch(Hierarchy& out, int& Bdim, const char* filename, bool RemoveBogi, StringMap& BogusList);
-//void ReadCodeNames(char* FileName, CArray<CString,LPCSTR>& Var);
 void ReadCodeNames(const char* FileName, std::vector<std::string>& Var);
 void PrintHierarch(Hierarchy& Var, FILE& filename);
 void FreeHierarchy(Hierarchy& Var);
-//void MakeCodeList(Hierarchy& Var, CMap<CString, LPCSTR, int, int>& CodeList, CMap<CString, LPCSTR, int, int>& AllCodes);
 void MakeCodeList(Hierarchy& Var, std::map<std::string, int>& CodeList, std::map<std::string, int>& AllCodes);
 void RemoveBogussen(Hierarchy& hier, int& BDim, StringMap& BogusList);
 

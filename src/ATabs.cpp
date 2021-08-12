@@ -22,20 +22,26 @@
 // simpele Table structuur
 //
 // Public functions
-void Table::Make(Vector<int> Dims)
+//void Table::Make(Vector<int> Dims)
+void Table::Make(std::vector<int> Dims)
 {
-  int i,j;
-  subdims.Make(Dims.size()); // subsizes van (n-1)-dimensionale tabel + size dim n
+  //subdims.Make(Dims.size()); // subsizes van (n-1)-dimensionale tabel + size dim n
+  subdims.clear();
+  subdims.resize(Dims.size()); // subsizes van (n-1)-dimensionale tabel + size dim n
 
   size = 1;
-  for (i=1;i<=subdims.size()-1;i++) // vector van (n-1)-dimensionale tabel
+  for (size_t i=1;i<=subdims.size()-1;i++) // vector van (n-1)-dimensionale tabel
   {
-    size *= Dims[i];
-    subdims[i]=1;
-    for (j=i+1;j<=(subdims.size()-1);j++)
-      subdims[i] *= Dims[j];
+    //size *= Dims[i];
+    size *= Dims[i-1];
+    //subdims[i]=1;
+    subdims[i-1]=1;
+    for (size_t j=i+1;j<=(subdims.size()-1);j++)
+      //subdims[i] *= Dims[j];
+      subdims[i-1] *= Dims[j-1];
   }
-  subdims[subdims.size()] = Dims[subdims.size()];
+  //subdims[subdims.size()] = Dims[subdims.size()];
+  subdims[subdims.size()-1] = Dims[subdims.size()-1];
   
   body = new column[size];
   if (body==NULL) 
@@ -43,13 +49,14 @@ void Table::Make(Vector<int> Dims)
 	  WriteErrorToLog(LogName,HITAS_NOTENOUGHMEMORY);
 	  exit(HITAS_NOTENOUGHMEMORY);
   }
-  for (i=0;i<size;i++)
+  for (int i=0;i<size;i++)
     body[i] = NULL;
 }
 
-cell* Table::operator[] (Vector<int> ijk)
+//cell* Table::operator[] (Vector<int> ijk)
+cell* Table::operator[] (std::vector<int> ijk)
 {
-  int position,i;
+  int position;
   char buffer[256];
   if (ijk.size() != subdims.size())
   {
@@ -62,23 +69,28 @@ cell* Table::operator[] (Vector<int> ijk)
   else
   {
     position=0;                         // position is in (n-1)-dim. tabel
-    for (i=1;i<=ijk.size()-1;i++)
-      position += ijk[i]*subdims[i];
+    for (size_t i=1;i<=ijk.size()-1;i++)
+      //position += ijk[i]*subdims[i];
+        position += ijk[i-1]*subdims[i-1];
   }
   if (body[position]==NULL)
     return NULL;
   else
-    return &body[position][ijk[ijk.size()]];  // laatste index is in de kolom
+    //return &body[position][ijk[ijk.size()]];  // laatste index is in de kolom
                                               // "op" de (n-1)-dim. tabel
+    return &body[position][ijk[ijk.size()-1]];  // last index is in the column
+                                                // "on top of" the (n-1)-dim. table
 }
 
-void Table::MakeColumn(Vector<int> ijk)
+//void Table::MakeColumn(Vector<int> ijk)
+void Table::MakeColumn(std::vector<int> ijk)
 {
   int position=0;                         // position is in (n-1)-dim. tabel
-  int i;
-  for (i=1;i<=ijk.size()-1;i++)
-    position += ijk[i]*subdims[i];
-  CreateColumn(body[position], subdims[subdims.size()]);
+  for (size_t i=1;i<=ijk.size()-1;i++)
+    //position += ijk[i]*subdims[i];
+      position += ijk[i-1]*subdims[i-1];
+  //CreateColumn(body[position], subdims[subdims.size()]);
+  CreateColumn(body[position], subdims[subdims.size()-1]);
 }
 
 void Table::Free()
@@ -91,7 +103,8 @@ void Table::Free()
   }
   delete[] body;
   body = NULL;
-  subdims.Free();
+  //subdims.Free();
+  subdims.clear();
   size = 0;
 }
 
@@ -106,7 +119,7 @@ int Table::ReadData(const char* FName)
 	  return(HITAS_FILENOTFOUND);
   }
 
-  int coord,k,counter;
+  int coord,counter;
   double value,lb,ub,cost;
   int position;
   char status;
@@ -114,14 +127,16 @@ int Table::ReadData(const char* FName)
   while (!feof(Invoer))
   {
     position=0;               // position is in (n-1)-dim. tabel
-    for (k=1;k<subdims.size();k++)
+    for (size_t k=1;k<subdims.size();k++)
     {
 	fscanf(Invoer,"%d ",&coord);
-	position += coord*subdims[k];
+	//position += coord*subdims[k];
+        position += coord*subdims[k-1];
     }
     if (body[position] == NULL)
     {
-        CreateColumn(body[position],subdims[subdims.size()]);
+        //CreateColumn(body[position],subdims[subdims.size()]);
+        CreateColumn(body[position],subdims[subdims.size()-1]);
     }
 
     fscanf(Invoer,"%d %lf %c",&coord,&value,&status);
@@ -167,65 +182,76 @@ int Table::PrintData()
 	  return(HITAS_FILEWRITE);
   }
   
-  Vector<int> coords;
+  //Vector<int> coords;
+  std::vector<int> coords;
   int dim = subdims.size()-1;
-  coords.Make(dim);
+  //coords.Make(dim);
+  coords.resize(dim);
   for (i=0; i<size;i++)
   {
     if (body[i] != NULL)
     {
       Getijk(i,coords);
       for (j=1;j<=dim;j++)
-        fprintf(out,"%4d ",coords[j]);
-      for (j=0;j<=subdims[subdims.size()]-1;j++)
+        //fprintf(out,"%4d ",coords[j]);
+          fprintf(out,"%4d ",coords[j-1]);
+      //for (j=0;j<=subdims[subdims.size()]-1;j++)
+      for (j=0;j<=subdims[subdims.size()-1]-1;j++)
         fprintf(out,"%10.0lf(%c) ",body[i][j].value, body[i][j].status);
       fprintf(out,"\n");
     }
   }
   fclose(out);
-  coords.Free();
+  //coords.Free();
   return 0;
 }
 
 void Table::APrintTabel(FILE& uitfile, const char* States)
 {
   int i,j,k;
-  Vector<int> coords;
+  //Vector<int> coords;
+  std::vector<int> coords;
   int dim = subdims.size()-1;
-  coords.Make(dim);
+  //coords.Make(dim);
+  coords.resize(dim,1);
   for (i=0; i<size;i++)
   {
     if (body[i] != NULL)
     {
         Getijk(i,coords);
-        for (k=0;k<=subdims[subdims.size()]-1;k++)
+        //for (k=0;k<=subdims[subdims.size()]-1;k++)
+        for (k=0;k<subdims[subdims.size()-1];k++)
 	{
                 if (strchr(States,body[i][k].status) != NULL)
                 {
 		  for (j=1;j<=dim;j++)
-                        fprintf(&uitfile,"%4d ",coords[j]);
+                      //fprintf(&uitfile,"%4d ",coords[j]);
+                      fprintf(&uitfile,"%4d ",coords[j-1]);
                   fprintf(&uitfile,"%4d\n",k);
 		}
 	}
     }
   }
-  coords.Free();
+  //coords.Free();
 }
 
 
 void Table::PrintStatusCells(const char* States, InExCodeLijst& TerugLijst, FILE& out)
 {
   int i,j,k;
-  Vector<int> coords;
+  //Vector<int> coords;
+  std::vector<int> coords;
   int dim = subdims.size()-1;
   
-  coords.Make(dim);
+  //coords.Make(dim);
+  coords.resize(dim);
   for (i=0; i<size;i++)
   {
     if (body[i] != NULL) // Om ruimte te sparen alleen niet-lege cellen wegschrijven 
     {
       Getijk(i,coords);
-      for (j=0;j<=subdims[subdims.size()]-1;j++)
+      //for (j=0;j<=subdims[subdims.size()]-1;j++)
+      for (j=0;j<=subdims[subdims.size()-1]-1;j++)
         if (strchr(States,body[i][j].status))
         {
           for (k=1;k<=dim;k++)     // Schrijf coordinaten
@@ -237,19 +263,20 @@ void Table::PrintStatusCells(const char* States, InExCodeLijst& TerugLijst, FILE
         }
     }
   }
-  coords.Free();
+  //coords.Free();
 }
 
 
-void Table::Getijk(int m, Vector<int> Gijk)
+void Table::Getijk(int m, std::vector<int>& Gijk)
 {
-  int i;
   div_t x;
   int y=m;
-  for (i=1;i<=Gijk.size();i++)
+  for (size_t i=1;i<=Gijk.size();i++)
   {
-    x = div(y,subdims[i]);
-    Gijk[i]=x.quot;
+    //x = div(y,subdims[i]);
+    x = div(y,subdims[i-1]);
+    //Gijk[i]=x.quot;
+    Gijk[i-1]=x.quot;
     y=x.rem;
   }
 }
@@ -272,26 +299,32 @@ void Table::CreateColumn(column& newcol, int N)
 	}
 	for (int i=0;i<N;i++)
 	{
-		newcol[i].Pbounds.reserve(0);
-                newcol[i].Ebounds.reserve(0);
+		newcol[i].Pbounds.resize(0);
+                newcol[i].Ebounds.resize(0);
 	}
 }
 
 // Tabel in formaat om aan JJ-routines te voeren
 // Public functions
-void JJTable::Init(Vector<int> L)
+//void JJTable::Init(Vector<int> L)
+void JJTable::Init(std::vector<int> L)
 {
   int i,j;
   basedim = L.size();
   int Rdim = 0;
-  for (i=1;i<=basedim;i++)
+  //for (i=1;i<=basedim;i++)
+  for (i=0;i<basedim;i++)
     if (L[i]!=0) Rdim++;
 
   size=1;
-  N.Make(Rdim);
+  //N.Make(Rdim);
+  N.clear();
+  N.resize(Rdim);
 
-  j=1;
-  for (i=1;i<=basedim;i++)
+  //j=1;
+  j=0;
+  //for (i=1;i<=basedim;i++)
+  for (i=0;i<basedim;i++)
   {
     if (L[i]!=0)
     {
@@ -300,8 +333,10 @@ void JJTable::Init(Vector<int> L)
     }
   }
 
-  ijk.Make(Rdim);
-  for (i=1;i<=Rdim;i++)
+  //ijk.Make(Rdim);
+  ijk.resize(Rdim);
+  //for (i=1;i<=Rdim;i++)
+  for (i=0;i<Rdim;i++)
   {
         ijk[i] = (int*) malloc(size*sizeof(int));
 	if (ijk[i]==NULL) 
@@ -311,14 +346,18 @@ void JJTable::Init(Vector<int> L)
 	}
   }
 
-  baseijk = (Vector<int>*) malloc(size*sizeof(Vector<int>));
+  //baseijk = (Vector<int>*) malloc(size*sizeof(Vector<int>));
+  baseijk = new std::vector<int>[size];
   if (baseijk==NULL) 
   {
 	  WriteErrorToLog(LogName,HITAS_NOTENOUGHMEMORY);
 	  exit(HITAS_NOTENOUGHMEMORY);
   }
-  for (i=0;i<size;i++)
-     baseijk[i].Make(basedim);
+  for (i=0;i<size;i++){
+    //baseijk[i].Make(basedim);
+    baseijk[i].clear();
+    baseijk[i].resize(basedim);
+  }
 
   weight = (int*) malloc(size*sizeof(int));
   if (weight==NULL) 
@@ -390,37 +429,44 @@ void JJTable::Init(Vector<int> L)
 
 void JJTable::PrintData(FILE& Uitfile)
 {
-  int i,j;
+  int i;
   int a = (int)(log(MAXWEIGHT)/log(10.0) + 1);
   for (i=0;i<size;i++)
   {
-    for (j=1;j<=ijk.size();j++)
-      fprintf(&Uitfile,"%3d ",ijk[j][i]);
+    for (size_t j=1;j<=ijk.size();j++)
+      //fprintf(&Uitfile,"%3d ",ijk[j][i]);
+        fprintf(&Uitfile,"%3d ",ijk[j-1][i]);
     fprintf(&Uitfile, "%15.5lf %*d %c %15.5lf %15.5lf %15.5lf %15.5lf %15.5lf\n",data[i],a,weight[i],status[i],lb[i],ub[i],lpl[i],upl[i],0.0);
   }
   fprintf(&Uitfile,"\n");
 }
 
-void JJTable::PrintWeights(FILE& Uitfile, Vector< Vector<int> > SGTab)
+//void JJTable::PrintWeights(FILE& Uitfile, Vector< Vector<int> > SGTab)
+void JJTable::PrintWeights(FILE& Uitfile, std::vector< std::vector<int> > SGTab)
 {
   int i,j;
   j=1;
   for (i=1;i<basedim;i++)    // Aantal categorieen, exlc. marginaal
   {
-	if (SGTab[i][1]==0)
+	//if (SGTab[i][1]==0)
+      if (SGTab[i-1][0]==0)
 	  fprintf(&Uitfile,"0 ");
 	else
-	  fprintf(&Uitfile,"%d ",N[j++]-1);
+	  //fprintf(&Uitfile,"%d ",N[j++]-1);
+        {fprintf(&Uitfile,"%d ",N[j-1]-1);j++;}
   }
-  if (SGTab[i][1]==0)
+  //if (SGTab[i][1]==0)
+  if (SGTab[i-1][0]==0)
 	fprintf(&Uitfile,"0\n");
   else
-    fprintf(&Uitfile,"%d\n",N[j]-1);
+    //fprintf(&Uitfile,"%d\n",N[j]-1);
+      fprintf(&Uitfile,"%d\n",N[j-1]-1);
 
   for (i=0;i<size;i++)
   {
     for (j=1;j<=basedim;j++)
-      fprintf(&Uitfile,"%5d ",baseijk[i][j]);
+      //fprintf(&Uitfile,"%5d ",baseijk[i][j]);
+        fprintf(&Uitfile,"%5d ",baseijk[i][j-1]);
     fprintf(&Uitfile, "%5d\n",weight[i]);
   }
   fprintf(&Uitfile,"\n");
@@ -448,13 +494,13 @@ void JJTable::PrintAdditionalInfo(FILE& Uitfile)
 	int j;
         unsigned int i;
 
-        fprintf(&Uitfile,"Number of additional cells: %d\n",AdditionalCells.size());
+        fprintf(&Uitfile,"Number of additional cells: %zu\n",AdditionalCells.size());
 	for (i=0;i<AdditionalCells.size();i++)
 	{
                 fprintf(&Uitfile,"%d %lf %d %c %lf %lf %lf %lf %lf\n",AdditionalCells[i].position,AdditionalCells[i].value,AdditionalCells[i].weight,AdditionalCells[i].status,
 						AdditionalCells[i].lb,AdditionalCells[i].ub,AdditionalCells[i].lpl,AdditionalCells[i].upl,AdditionalCells[i].spl);
 	}
-	fprintf(&Uitfile,"Number of additional constraints: %d\n",AdditionalConstraints.size());
+	fprintf(&Uitfile,"Number of additional constraints: %zu\n",AdditionalConstraints.size());
 	for (i=0;i<AdditionalConstraints.size();i++)
 	{
 		fprintf(&Uitfile,"%lf %d: ",AdditionalConstraints[i].rhs,AdditionalConstraints[i].ncard);
@@ -502,21 +548,27 @@ void JJTable::Free()
   
   AdditionalConstraints.erase(AdditionalConstraints.begin(),AdditionalConstraints.end());
   
-  N.Free();
+  //N.Free();
+  N.clear();
   
-  // Vector<int*> ijk
-  for (i=1;i<=ijk.size();i++)
+  // std::vector<int*> ijk
+  for (size_t i=1;i<=ijk.size();i++)
   {
-        free(ijk[i]);
-	ijk[i] = NULL;
+        //free(ijk[i]);
+        free(ijk[i-1]);
+	//ijk[i] = NULL;
+        ijk[i-1] = NULL;
   }
-  ijk.Free();
+  //ijk.Free();
+  ijk.clear();
   
   //Vector<int>* baseijk
   for (i=0;i<size;i++)
-    baseijk[i].Free();
+    //baseijk[i].Free();
+      baseijk[i].clear();
   
-  free(baseijk);
+  //free(baseijk);
+  delete[] baseijk;
   baseijk=NULL;
 
   free(weight);

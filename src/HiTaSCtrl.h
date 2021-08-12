@@ -18,16 +18,11 @@
 #ifndef HITASCTRL_H
 #define	HITASCTRL_H
 
-//#include "cplex.h"
-//#include "xprs.h"
 #include "AMyIO.h"
 #include "AMiscFunc.h"
 #include "ADefs.h"
 #include "IProgressListener.h"
 #include "ICallback.h"
-//#include <scip/scip.h>
-//#include <scip/scipdefplugins.h>
-//#include "objscip/objscip.h"
 #include <iostream>
 #include <time.h>
 
@@ -59,7 +54,8 @@ private:
     void LoadErrorStrings(StringTable& ErrorStrings);
     void freecsp(int ncells, char **names, double *data, double *lpl, double *upl, double *spl, double *lb, double *ub, int *weight, char *states, int *ncard, double *rhs, int *list, signed char *val);
     void CleanUp();
-    void FreeHierVector(Vector<Hierarchy>& VS);
+    //void FreeHierVector(Vector<Hierarchy>& VS);
+    void FreeHierVector(std::vector<Hierarchy>& VS);
     void CloseSolver(const char* Solver);
     long CheckStart(const char* Solver, const char* ILMFile);   
     
@@ -68,7 +64,7 @@ public:
     {
         //m_ProgressListener = NULL;
         // Load from file the strings assigned to error-codes
-	LoadErrorStrings(ErrorStrings);
+	//LoadErrorStrings(ErrorStrings);
     
 	// Default settings for JJ-variables, in case of Cplex
 	JJzero        = 1E-7;

@@ -37,7 +37,7 @@
 //#define NEW_FILE 91
 #define NEW_TAB  92
 #define OLD_TAB  93
-#define INFWEIGHT 999   // TIJDELIJK!!!!!!!!
+#define INFWEIGHT 999   // TEMPORARY!!!!!!!!
 
 // Protection levels to be used in "tricks" (Singletons etc.)
 #define TRICK_LPL		0.00
@@ -52,13 +52,9 @@ typedef struct{int position; int count; double value;} celinfo;
 typedef std::map< std::string, std::vector<celinfo>* > CountInfo;
 typedef std::map< std::string, int> TotCountInfo;
 
-//int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, CArray<double,double>& bounds, double& MaxCost);  // PWOF-23-02-2009 Changed MaxCost from int to double
-int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost);  // PWOF-23-02-2009 Changed MaxCost from int to double
-//int FillTableNoCost(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds);
-//int Suppress(const char* Solver, JJTable& Tab, int Rdim, double& MaxCost, int &ObjVal);  // PWOF-22-03-2013 Nog uitzoeken hoe fire werkt
+//int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost);  // PWOF-23-02-2009 Changed MaxCost from int to double
+int FillTable(JJTable& Tab, std::vector< std::vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost);  // PWOF-23-02-2009 Changed MaxCost from int to double
 int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& MaxCost, int Hierarch,  int &ObjVal);
-//int SuppressNoCost(const char* Solver, JJTable& Tab, int Rdim, int Hierarch, int &ObjVal); // PWOF-22-03-2013 Nog uitzoeken hoe fire werkt
-//int Update(Table& BTab, JJTable& Tab, int RetCode, CArray<double,double>& bounds);
 int Update(Table& BTab, JJTable& Tab, int RetCode, std::vector<double>& bounds);
 
 int TestNewTable(std::string& TableList, JJTable& Tab, Table& BTab);

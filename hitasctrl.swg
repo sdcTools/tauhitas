@@ -2,8 +2,8 @@
 // directors="1" needed for being able to use the director feature
 %module(directors="1") tauhitas
 
-%include <typemaps.i>
 %include <windows.i>
+%include <typemaps.i>
 %include <arrays_java.i>
 %include <various.i>
 %include <std_string.i>

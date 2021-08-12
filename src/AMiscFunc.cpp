@@ -16,11 +16,12 @@
 */
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <vector.h>
 #include "AErrors.h"
 
 #include "resource.h"
@@ -51,29 +52,38 @@ double seconds()
 // TabDims[1] = N[Dim], TabDims[2] = N[Dim-1], ..., TabDims[Dim] = 1
 
 // Returns TRUE if cell in margin
-static bool Getijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
+//static bool Getijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
+static bool Getijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
 {
   // Assume that Gijk.size() >= 1
-  int i;
+  //int i;
+  size_t i;
   int prod=1;
   div_t x;
   int y=m;
   if (Gijk.size() == 1)
   {
-	Gijk[1] = m;
+	//Gijk[1] = m;
+        Gijk[0] = m;
 	prod = m;
   }
   else  
   {
-	for (i=1;i<Gijk.size();i++)
+	//for (i=1;i<Gijk.size();i++)
+        for (i=1;i<Gijk.size();i++)
 	{
-	    x = div(y,TabDims[i]);
-	    Gijk[Gijk.size()-i+1] = x.rem;
+	    //x = div(y,TabDims[i]);
+            x = div(y,TabDims[i-1]);
+	    //Gijk[Gijk.size()-i+1] = x.rem;
+            Gijk[Gijk.size()-i] = x.rem;
 	    y=x.quot;
-            prod *= Gijk[Gijk.size()-i+1];  // If at least one 0 then marginal cell
+            //prod *= Gijk[Gijk.size()-i+1];  // If at least one 0 then marginal cell
+            prod *= Gijk[Gijk.size()-i];  // If at least one 0 then marginal cell
 	}
-        Gijk[1]=x.quot;
-        prod *= Gijk[Gijk.size()-i+1];
+        //Gijk[1]=x.quot;
+        Gijk[0]=x.quot;
+        //prod *= Gijk[Gijk.size()-i+1];
+        prod *= Gijk[Gijk.size()-i];
   }
   return (prod == 0); // If at least one 0 then marginal cell
 }
@@ -85,20 +95,25 @@ static bool Getijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
 // 4-dim: m = i*N[4]*N[3]*N[2] + j*N[4]*N[3] + k*N[4] + s
 
 // TabDims[1] = N[Dim], TabDims[2] = N[Dim-1], ..., TabDims[Dim-1] = N[2], TabDims[Dim] = 1
-static bool Calc_m(Vector<int> Gijk, Vector<int> TabDims, int& m)
+//static bool Calc_m(Vector<int> Gijk, Vector<int> TabDims, int& m)
+static bool Calc_m(std::vector<int> Gijk, std::vector<int> TabDims, int& m)
 {
-	int i, prod=1;
+	int prod=1;
 	int factor=1;
 	
-	for (i=1;i<=TabDims.size();i++)
-		factor *= TabDims[i];		// Start with N[Dim]*N[Dim-1]*...*N[2]*1
+	for (size_t i=1;i<=TabDims.size();i++)
+		//factor *= TabDims[i];		// Start with N[Dim]*N[Dim-1]*...*N[2]*1
+            factor *= TabDims[i-1];		// Start with N[Dim]*N[Dim-1]*...*N[2]*1
 	
 	m = 0;
-	for (i=1;i<=Gijk.size();i++)
+	for (size_t i=1;i<=Gijk.size();i++)
 	{
-		factor /= TabDims[TabDims.size()-i+1];  // i=1: divide by TabDims[Dim] = 1
-		m += Gijk[i]*factor;
-		prod *= Gijk[i];
+		//factor /= TabDims[TabDims.size()-i+1];  // i=1: divide by TabDims[Dim] = 1
+                factor /= TabDims[TabDims.size()-i];  // i=1: divide by TabDims[Dim] = 1
+		//m += Gijk[i]*factor;
+                m += Gijk[i-1]*factor;
+		//prod *= Gijk[i];
+                prod *= Gijk[i-1];
 	}
 	return (prod == 0); // If at least one 0 then marginal cell
 }
@@ -263,7 +278,8 @@ static double AdjustMarginalWeights(JJTable& Tab, double MaxCost)  // MaxCost is
   // Total General
   AddWeight=MaxCost;
   for (i=1;i<=dims;i++)
-	  AddWeight = (Tab.N[i]-1)*AddWeight;
+	  //AddWeight = (Tab.N[i]-1)*AddWeight;
+      AddWeight = (Tab.N[i-1]-1)*AddWeight;
   Tab.costs[0] += AddWeight;
    
   // When weight becomes too large: scale all weights
@@ -280,13 +296,15 @@ static double AdjustMarginalWeights(JJTable& Tab, double MaxCost)  // MaxCost is
   {
 	  marg = 1;
 	  for (j=1;j<=dims;j++)
-		  marg *= Tab.ijk[j][m];
+            //marg *= Tab.ijk[j][m];
+            marg *= Tab.ijk[j-1][m];
 
 	  if (marg == 0) // marginal cell
 	  {
 		AddWeight = MaxCost;
 		for (i=1;i<=dims;i++)
-			if (Tab.ijk[i][m] == 0) AddWeight = (Tab.N[i]-1)*AddWeight; // all marginals
+			//if (Tab.ijk[i][m] == 0) AddWeight = (Tab.N[i]-1)*AddWeight; // all marginals
+                    if (Tab.ijk[i-1][m] == 0) AddWeight = (Tab.N[i-1]-1)*AddWeight; // all marginals
 		Tab.costs[m] += AddWeight;
 		MinMargWeight = __min(Tab.costs[m],MinMargWeight);
 	  }
@@ -315,44 +333,56 @@ static void ScaleMarginalWeights(JJTable& Tab)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Simple distance function
-static void SetDistanceCostsPerDim(JJTable& Tab, int m, int DimIndex, int DimWeights[5])
+//static void SetDistanceCostsPerDim(JJTable& Tab, int m, int DimIndex, int DimWeights[5])
+static void SetDistanceCostsPerDim(JJTable& Tab, int m, int DimIndex, std::vector<int> DimWeights)
 {
 	int i, j, dist, pos;
 	double weight = Tab.costs[m]; // Initializing to original cost, in case it will not change
-	Vector<int> Gijk;
-	Gijk.Make(Tab.Dim());
-	Vector<int> TabDims;
-	TabDims.Make(Tab.Dim());
+	//Vector<int> Gijk;
+        std::vector<int> Gijk;
+	//Gijk.Make(Tab.Dim());
+        Gijk.resize(Tab.Dim());
+	//Vector<int> TabDims;
+        std::vector<int> TabDims;
+	//TabDims.Make(Tab.Dim());
+        TabDims.resize(Tab.Dim());
 
 	for (i=1;i<Tab.Dim();i++)
-		TabDims[i] = Tab.N[Tab.Dim()-i+1];
-	TabDims[Tab.Dim()] = 1;
+		//TabDims[i] = Tab.N[Tab.Dim()-i+1];
+                TabDims[i-1] = Tab.N[Tab.Dim()-i];
+	//TabDims[Tab.Dim()] = 1;
+        TabDims[Tab.Dim()-1] = 1;
 
         for (j=1;j<=Tab.Dim();j++)  // Needs to be done once for all cells in this row
-            Gijk[j] = Tab.ijk[j][m];
+            //Gijk[j] = Tab.ijk[j][m];
+            Gijk[j-1] = Tab.ijk[j-1][m];
         
-	for (i=1;i<Tab.N[DimIndex];i++)     // single row, excluding marginal
+	//for (i=1;i<Tab.N[DimIndex];i++)     // single row, excluding marginal
+        for (i=1;i<Tab.N[DimIndex-1];i++)     // single row, excluding marginal
         {
-          dist = Tab.ijk[DimIndex][m] - i;  // distance to primary within row
+          //dist = Tab.ijk[DimIndex][m] - i;  // distance to primary within row
+            dist = Tab.ijk[DimIndex-1][m] - i;  // distance to primary within row
 					// negative when cell "precedes" the primary, 
 					// positive when cell "follows" the primary
 
-	  if (abs(dist)>=5)		// maximum distance, i.e., use DimWeights[4]
+          if (abs(dist)>=5)		// maximum distance, i.e., use DimWeights[4]
 		  weight = DimWeights[4];
 	  else 
 	  {
-		  if (dist)		// if dist==0 then nothing to do and index would go wrong
-			weight = DimWeights[abs(dist)-1];
+            if (dist)		// if dist==0 then nothing to do and index would go wrong
+		weight = DimWeights[abs(dist)-1];
 	  }
 	  
-	  Gijk[DimIndex] = i; // set final index of position for cell i in this row
+	  //Gijk[DimIndex] = i; // set final index of position for cell i in this row
+          Gijk[DimIndex-1] = i; // set final index of position for cell i in this row
 	  Calc_m(Gijk,TabDims,pos); 
 
           if (((Tab.status[pos]=='s') || (Tab.status[pos]=='z')) && (weight<Tab.costs[pos])) Tab.costs[pos] = weight;
         }
         
-	Gijk.Free();
-	TabDims.Free();
+        //Not needed for std::vector. Is restricted to this scope.
+	//Gijk.Free();
+	//TabDims.Free();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,13 +395,13 @@ static void SetDistanceCostsPerDim(JJTable& Tab, int m, int DimIndex, int DimWei
 static void CalcPbounds(cell* BCell, const std::vector<double>& bounds)
 {
 #ifdef SECBOUNDS
-  if (BCell->Pbounds.size() == 0) BCell->Pbounds.reserve(2);
+  if (BCell->Pbounds.size() == 0) BCell->Pbounds.resize(2);
   BCell->Pbounds[0] = __min((1.0-LOWERMARG)*fabs(BCell->value),bounds[0]);
   if (BCell->Pbounds[0] < 0.0001) BCell->Pbounds[0] = 0.0001;
   BCell->Pbounds[1] = __min((UPPERMARG-1.0)*fabs(BCell->value),bounds[1]);
   if (BCell->Pbounds[1] < 0.0001) BCell->Pbounds[1] = 0.0001;
 #else
-  if (BCell->Pbounds.size() == 0) BCell->Pbounds.reserve(2);
+  if (BCell->Pbounds.size() == 0) BCell->Pbounds.resize(2);
   BCell->Pbounds[0] = (1.0-LOWERMARG)*fabs(BCell->value);
   if (BCell->Pbounds[0] < 0.0001) BCell->Pbounds[0] = 0.0001;
   BCell->Pbounds[1] = (UPPERMARG-1.0)*fabs(BCell->value);
@@ -401,7 +431,7 @@ static void SetCountBounds(JJTable& Tab, CountInfo& Y, TotCountInfo &Yc)
 	int rowcount, cellposition;
 	double value;
 	bool DoIt;
-	std::vector<int> Cellpositions;
+	//std::vector<int> Cellpositions; ??Not used
 	addcellinfo CellInfo;
 	addsuminfo Constraint;
 	std::string row;
@@ -478,21 +508,28 @@ static void GetCel2(JJTable &Tab, std::string row, int Spos, celinfo& Cel2, int 
 	int i,k,Npos;
         std::string::size_type pt;
 
-	Vector<int> Gijk;
-	Vector<int> TabDims;
-	Gijk.Make(Tab.Dim());
-	TabDims.Make(Tab.Dim());
-
+	//Vector<int> Gijk;
+        std::vector<int> Gijk;
+	//Vector<int> TabDims;
+        std::vector<int> TabDims;
+	//Gijk.Make(Tab.Dim());
+        Gijk.resize(Tab.Dim());
+	//TabDims.Make(Tab.Dim());
+        TabDims.resize(Tab.Dim());
+        
 	// TabDims[1] = Tab.N[Dim], TabDims[2] = Tab.N[Dim-1] ... TabDims[Dim] = 1
 	// Needed for Calc_m
 	for (i=1;i<Tab.Dim();i++)
-		TabDims[i] = Tab.N[Tab.Dim()-i+1];
-	TabDims[Tab.Dim()] = 1;
+		//TabDims[i] = Tab.N[Tab.Dim()-i+1];
+                TabDims[i-1] = Tab.N[Tab.Dim()-i];
+	//TabDims[Tab.Dim()] = 1;
+        TabDims[Tab.Dim()-1] = 1;
 
         pt = row.find('.');
 	if (pt == std::string::npos)		// No . found, so Tab.Dim == 1
 	{
-		for (k=1;k<Tab.N[1];k++)
+		//for (k=1;k<Tab.N[1];k++)
+                for (k=1;k<Tab.N[0];k++)
 			if ((Tab.status[k]=='u') && (k!=Spos))
 			{ // Looking for dominance primary
 				Cel2.count = Tab.count[k];
@@ -507,16 +544,19 @@ static void GetCel2(JJTable &Tab, std::string row, int Spos, celinfo& Cel2, int 
 		{
 			if (i != NonFixedIndex)
 			{
-                                Gijk[i] = atoi(row.substr(0,pt).c_str());
+                                //Gijk[i] = atoi(row.substr(0,pt).c_str());
+                                Gijk[i-1] = atoi(row.substr(0,pt).c_str());
                                 row = row.substr(pt+1);
                                 pt = row.find('.');
 			}
 		}
 	}
 
-	for (k=1;k<Tab.N[NonFixedIndex];k++)
+	//for (k=1;k<Tab.N[NonFixedIndex];k++)
+        for (k=1;k<Tab.N[NonFixedIndex-1];k++)
 	{
-		Gijk[NonFixedIndex] = k;
+		//Gijk[NonFixedIndex] = k;
+                Gijk[NonFixedIndex-1] = k;
 		Calc_m(Gijk,TabDims,Npos);
 		if ((Tab.status[Npos]=='u') && (Npos != Spos))
 		{ // Looking for dominance primary
@@ -527,8 +567,9 @@ static void GetCel2(JJTable &Tab, std::string row, int Spos, celinfo& Cel2, int 
 		}
 	}
 
-	Gijk.Free();
-	TabDims.Free();
+        //Not needed for std::vector. Is restricted to this scope.
+	//Gijk.Free();
+	//TabDims.Free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -661,214 +702,242 @@ static void FreeCountCells(CountInfo& C, TotCountInfo& Cc)
 // If DoCosts = true, maximum cost is calculated
 // If DoCosts = false, DISTANCE can be used
 
-static void FillJJ(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost)
+//static void FillJJ(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost)
+static void FillJJ(JJTable& Tab, std::vector< std::vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost)
 {
-  int Weight = INFWEIGHT;            
-  int dims = Tab.Dim();
-  int zerodims = Tab.BDim() - Tab.Dim(); // number of "dummy"-dimensions
-  int i,j,k,m,tel;
-  int UpperM = Tab.Size(); // number of cells in table Tab
-  bool DoNoTricks=true;
+    int Weight = INFWEIGHT;            
+    int dims = Tab.Dim();
+    int zerodims = Tab.BDim() - Tab.Dim(); // number of "dummy"-dimensions
+    int i,j,k,m,tel;
+    int UpperM = Tab.Size(); // number of cells in table Tab
+    bool DoNoTricks=true;
 
-  CountInfo DummyCountInfo;
-  TotCountInfo DummyTotCountInfo;
-  std::string DummyString;
+    CountInfo DummyCountInfo;
+    TotCountInfo DummyTotCountInfo;
+    std::string DummyString;
   
-  std::vector<CountInfo> CI;	// Array with cellinfo of frequency/count-unsafe cells per Row
-  CI.assign(dims, DummyCountInfo);
-  std::vector<TotCountInfo> TCIc; // Number of frequency/count-unsafe cells per Row
-  TCIc.assign(dims, DummyTotCountInfo);
-  std::vector<TotCountInfo> TCIu; // Number of primary unsafe cells per Row
-  TCIu.assign(dims, DummyTotCountInfo);
-  std::vector<std::string> Rows;
-  Rows.assign(dims, DummyString);
+    std::vector<CountInfo> CI;	// Array with cellinfo of frequency/count-unsafe cells per Row
+    CI.assign(dims, DummyCountInfo);
+    std::vector<TotCountInfo> TCIc; // Number of frequency/count-unsafe cells per Row
+    TCIc.assign(dims, DummyTotCountInfo);
+    std::vector<TotCountInfo> TCIu; // Number of primary unsafe cells per Row
+    TCIu.assign(dims, DummyTotCountInfo);
+    std::vector<std::string> Rows;
+    Rows.assign(dims, DummyString);
   
-  MaxCost=0.0; // Will change when DoCosts=true, if DoCosts=false, it will stay at 0.0
+    MaxCost=0.0; // Will change when DoCosts=true, if DoCosts=false, it will stay at 0.0
   
-  Vector<int> Gijk;
-  Gijk.Make(dims);
-
-  Vector<int> Vol;                    // Non-empty variables in BaseTable
-  Vol.Make(dims);
+    //Vector<int> Gijk;
+    //Gijk.Make(dims);
+    std::vector<int> Gijk;
+    Gijk.resize(dims);
+    
+    //Vector<int> Vol;                    // Non-empty variables in BaseTable
+    //Vol.Make(dims);
+    std::vector<int> Vol;                    // Non-empty variables in BaseTable
+    Vol.resize(dims);
   
-  Vector<int> Leeg;
-  Leeg.Make(Tab.BDim()-Tab.Dim());
-
-  Vector<int> Divs;		      // Need Divs[1] = Tab.N[Dim], Divs[2] = Tab.N[Dim-1], Divs[Dim] = 1;
-  Divs.Make(dims);
-  for (tel=1;tel<dims;tel++)
-	Divs[tel] = Tab.N[dims-tel+1];
-  Divs[dims]=1;
-
-  Tab.Skip = false;		      // Default: do not skip
+    //Vector<int> Leeg;
+    //Leeg.Make(Tab.BDim()-Tab.Dim()); 
+    std::vector<int> Leeg;
+    Leeg.resize(Tab.BDim()-Tab.Dim()); 
   
-  j=1;k=1;
+    //Vector<int> Divs;		      // Need Divs[1] = Tab.N[Dim], Divs[2] = Tab.N[Dim-1], Divs[Dim] = 1;
+    //Divs.Make(dims);
+    std::vector<int> Divs;		      // Need Divs[0] = Tab.N[Dim], Divs[1] = Tab.N[Dim-1], ..., Divs[Dim-1] = 1;
+    Divs.resize(dims);
+    for (tel=1;tel<dims;tel++)
+        //Divs[tel] = Tab.N[dims-tel+1];
+        Divs[tel-1] = Tab.N[dims-tel];
+    //Divs[dims]=1;
+    Divs[dims-1]=1;
 
-  for (i=1;i<=Tab.BDim();i++)	      // BDim can be larger than Dim => search for "empty" variables
-  {
-    if (SGTab[i][1] == 0) Leeg[j++] = i;  // "empty" variable found
-    else Vol[k++] = i;                    // Vol[] has ID's of "non-empty" variables
-  }
+    Tab.Skip = false;		      // Default: do not skip
+  
+    j=1;k=1;
 
-  for (m=0;m<UpperM;m++)           // Loop over all cells of JJTable to be constructed
-  {
-	if (Getijk(m,Gijk,Divs))       // Marginal cel if at least one Gijk[i] == 0, in which case Getijk returns true
+    for (i=1;i<=Tab.BDim();i++)	      // BDim can be larger than Dim => search for "empty" variables
+    {
+        //if (SGTab[i][1] == 0) Leeg[j++] = i;  // "empty" variable found
+        if (SGTab[i-1][0] == 0) {Leeg[j-1] = i; j++;}  // "empty" variable found
+        //else Vol[k++] = i;                    // Vol[] has ID's of "non-empty" variables
+        else {Vol[k-1] = i; k++;}                    // Vol[] has ID's of "non-empty" variables
+    }
+
+    for (m=0;m<UpperM;m++)           // Loop over all cells of JJTable to be constructed
+    {
+        if (Getijk(m,Gijk,Divs))       // Marginal cel if at least one Gijk[i] == 0, in which case Getijk returns true
 	{
-		for (tel=1;tel<=zerodims;tel++) Tab.baseijk[m][Leeg[tel]] = 0;
+            //for (tel=1;tel<=zerodims;tel++) Tab.baseijk[m][Leeg[tel]] = 0;
+            for (tel=1;tel<=zerodims;tel++) Tab.baseijk[m][Leeg[tel-1]-1] = 0;
 
-		for (tel=1;tel<=dims;tel++) 
+            for (tel=1;tel<=dims;tel++) 
+            {
+		//Tab.ijk[tel][m] = Gijk[tel];
+                Tab.ijk[tel-1][m] = Gijk[tel-1];
+		//Tab.baseijk[m][Vol[tel]] = (Gijk[tel]==0) ? SGTab[Vol[tel]][1] - 1 : SGTab[Vol[tel]][Gijk[tel]];
+                Tab.baseijk[m][Vol[tel-1]-1] = (Gijk[tel-1]==0) ? SGTab[Vol[tel-1]-1][0] - 1 : SGTab[Vol[tel-1]-1][Gijk[tel-1]-1];
+            }
+
+            MarginalCell(Tab,m,BTab[Tab.baseijk[m]],Weight);
+
+            if ((BTab[Tab.baseijk[m]]!=NULL)&&((Tab.status[m]=='u')||(Tab.status[m]=='b')||(Tab.status[m]=='m')))  // Primaries (real and temporarily)
+            {
+                if(bounds[0]<BTab[Tab.baseijk[m]]->Pbounds[0]) bounds[0] = BTab[Tab.baseijk[m]]->Pbounds[0];
+                if(bounds[1]<BTab[Tab.baseijk[m]]->Pbounds[1]) bounds[1] = BTab[Tab.baseijk[m]]->Pbounds[1];
+            }
+
+            if (Tab.status[m]=='u') // Only real primaries are candidates for "tricks"
+            {
+                if (dims == 1) Rows[0] = '0';   // Only a single row
+		else
 		{
-			Tab.ijk[tel][m] = Gijk[tel];
-			Tab.baseijk[m][Vol[tel]] = (Gijk[tel]==0) ? SGTab[Vol[tel]][1] - 1 : SGTab[Vol[tel]][Gijk[tel]];
-		}
-
-		MarginalCell(Tab,m,BTab[Tab.baseijk[m]],Weight);
-
-		if ((BTab[Tab.baseijk[m]]!=NULL)&&((Tab.status[m]=='u')||(Tab.status[m]=='b')||(Tab.status[m]=='m')))  // Primaries (real and temporarily)
-		{
-			if(bounds[0]<BTab[Tab.baseijk[m]]->Pbounds[0]) bounds[0] = BTab[Tab.baseijk[m]]->Pbounds[0];
-			if(bounds[1]<BTab[Tab.baseijk[m]]->Pbounds[1]) bounds[1] = BTab[Tab.baseijk[m]]->Pbounds[1];
-		}
-
-		if (Tab.status[m]=='u') // Only real primaries are candidates for "tricks"
-		{
-			if (dims == 1) Rows[0] = '0';   // Only a single row
-			else
-			{
-				for (i=0;i<dims;i++)
-				{
-                                        Rows[i].clear();
+                    for (i=0;i<dims;i++)
+                    {
+                        Rows[i].clear();
                                         
-					for (j=1;j<=dims;j++)
-					{
-                                                if ((j-1) != i) 
-                                                {
-                                                    Rows[i].append(to_string(Tab.ijk[j][m]));	// Rows[i] becomes j.k. with j and k "non-running indices"
-                                                    Rows[i].append(".");
-                                                }
-					}
-					if (Tab.ijk[i+1][m] != 0)   // Do not include marginal of "marginal of running index"
-					{
-						SumPrimaryCells(TCIu[i],Rows[i]);
-				
-						if ((Tab.count[m] == 1) || ((Tab.count[m] < MINCOUNT) && (Tab.count[m]>0)))
-							AddCountCell(CI[i],Rows[i],m,Tab.data[m],Tab.count[m]);
-						if (MINCOUNT > 0)
-							SumCountRuleCells(TCIc[i],Rows[i],Tab.count[m]);
-					}
-				}
+			for (j=1;j<=dims;j++)
+			{
+                            if ((j-1) != i) 
+                            {
+                                //Rows[i].append(to_string(Tab.ijk[j][m]));	// Rows[i] becomes j.k. with j and k "non-running indices"
+                                Rows[i].append(to_string(Tab.ijk[j-1][m]));	// Rows[i] becomes j.k. with j and k "non-running indices"
+                                Rows[i].append(".");
+                            }
 			}
-		}
+			//if (Tab.ijk[i+1][m] != 0)   // Do not include marginal of "marginal of running index"
+                        if (Tab.ijk[i][m] != 0)   // Do not include marginal of "marginal of running index"
+			{
+                            SumPrimaryCells(TCIu[i],Rows[i]);
+			
+                            if ((Tab.count[m] == 1) || ((Tab.count[m] < MINCOUNT) && (Tab.count[m]>0)))
+				AddCountCell(CI[i],Rows[i],m,Tab.data[m],Tab.count[m]);
+                            if (MINCOUNT > 0)
+                                SumCountRuleCells(TCIc[i],Rows[i],Tab.count[m]);
+                            }
+                        }
+                }
+            }		
 	}
 	else  // Internal cell
 	{
-          for (tel=1;tel<=zerodims;tel++) Tab.baseijk[m][Leeg[tel]] = 0;
+            //for (tel=1;tel<=zerodims;tel++) Tab.baseijk[m][Leeg[tel]] = 0;
+            for (tel=1;tel<=zerodims;tel++) Tab.baseijk[m][Leeg[tel-1]-1] = 0;
 
-	  for (tel=1;tel<=dims;tel++)
-	  {
-		Tab.ijk[tel][m]=Gijk[tel];
-		Tab.baseijk[m][Vol[tel]] = SGTab[Vol[tel]][Gijk[tel]];
-	  }
+            for (tel=1;tel<=dims;tel++)
+            {
+		//Tab.ijk[tel][m]=Gijk[tel];
+                Tab.ijk[tel-1][m]=Gijk[tel-1];
+		//Tab.baseijk[m][Vol[tel]] = SGTab[Vol[tel]][Gijk[tel]];
+                Tab.baseijk[m][Vol[tel-1]-1] = SGTab[Vol[tel-1]-1][Gijk[tel-1]-1];
+            }
 
-          SetCell(Tab,m,BTab[Tab.baseijk[m]]);
+            SetCell(Tab,m,BTab[Tab.baseijk[m]]);
 
- 	  if (Tab.status[m]=='n')
-	  {
+            if (Tab.status[m]=='n')
+            {
 		Tab.Skip = true;  // Table is to be skipped (linked tables method)
 		goto StopFilling; // Jump out of for-loop
-	  }
+            }
 
-	  if ((BTab[Tab.baseijk[m]]!=NULL)&&((Tab.status[m]=='u')||(Tab.status[m]=='b')))  // Primaries (real and temporarily, status[m]=='m' not possible)
-	  {
+            if ((BTab[Tab.baseijk[m]]!=NULL)&&((Tab.status[m]=='u')||(Tab.status[m]=='b')))  // Primaries (real and temporarily, status[m]=='m' not possible)
+            {
                 if(bounds[0]<BTab[Tab.baseijk[m]]->Pbounds[0]) bounds[0] = BTab[Tab.baseijk[m]]->Pbounds[0];
                 if(bounds[1]<BTab[Tab.baseijk[m]]->Pbounds[1]) bounds[1] = BTab[Tab.baseijk[m]]->Pbounds[1];
-	  }
+            }
 
-          if (DoCosts) MaxCost = __max(MaxCost, Tab.costs[m]);  
+            if (DoCosts) MaxCost = __max(MaxCost, Tab.costs[m]);  
 
-	  if (Tab.status[m]=='u') 
-	  {
+            if (Tab.status[m]=='u') 
+            {
 		if (dims == 1) Rows[0] = '0';   // Only a single row
 		else
 		{
-			for (i=0;i<dims;i++)
+                    for (i=0;i<dims;i++)
+                    {
+			Rows[i].clear();
+			for (j=1;j<=dims;j++)
 			{
-				Rows[i].clear();
-				for (j=1;j<=dims;j++)
-				{
-					if ((j-1) != i) 
-                                        {
-                                            Rows[i].append(to_string(Tab.ijk[j][m]));	// Rows[i] becomes j.k. with j and k "non-running indices"
-                                            Rows[i].append(".");
-                                        }
-				}
+                            if ((j-1) != i) 
+                            {
+                                //Rows[i].append(to_string(Tab.ijk[j][m]));	// Rows[i] becomes j.k. with j and k "non-running indices"
+                                Rows[i].append(to_string(Tab.ijk[j-1][m]));	// Rows[i] becomes j.k. with j and k "non-running indices"
+                                Rows[i].append(".");
+                            }
 			}
+                    }
 		}
 
 		for (i=0;i<dims;i++) SumPrimaryCells(TCIu[i],Rows[i]);   // Count number of primary unsafe cells in Row[i]
 
                 if (!DoCosts)
                 {
-                        if (DISTANCE != 0)
-                        {
-                                for (tel=1;tel<=dims;tel++) 
-                                {                                    
-                                    SetDistanceCostsPerDim(Tab,m,tel,D[Vol[tel]]);
-                                }
+                    if (DISTANCE != 0)
+                    {
+                        for (tel=1;tel<=dims;tel++) 
+                        {                                    
+                            //SetDistanceCostsPerDim(Tab,m,tel,D[Vol[tel]]);
+                            SetDistanceCostsPerDim(Tab,m,tel,D[Vol[tel-1]-1]);
                         }
+                    }
                 }
 
 		if ((Tab.count[m]==1) || ((Tab.count[m]<MINCOUNT) && (Tab.count[m]>0)))
-			for (i=0;i<dims;i++)
-                            AddCountCell(CI[i],Rows[i],m,Tab.data[m],Tab.count[m]);  // Cellinfo of frequency-unsafe cells in Row[i]
+                    for (i=0;i<dims;i++)
+                        AddCountCell(CI[i],Rows[i],m,Tab.data[m],Tab.count[m]);  // Cellinfo of frequency-unsafe cells in Row[i]
                                             
 		if (MINCOUNT > 0)
-			for (i=0;i<dims;i++) SumCountRuleCells(TCIc[i],Rows[i],Tab.count[m]);	// Count number of contributors in all unsafe cells in Row[i]
-	  }
+                    for (i=0;i<dims;i++) SumCountRuleCells(TCIc[i],Rows[i],Tab.count[m]);	// Count number of contributors in all unsafe cells in Row[i]
+            }
 	}
-  }
+    }
 
-  for (i=0;i<dims;i++)
-          DoNoTricks = (DoNoTricks && CI[i].empty()); // If all CI[i] empty, no Tricks possible
+    for (i=0;i<dims;i++)
+        DoNoTricks = (DoNoTricks && CI[i].empty()); // If all CI[i] empty, no Tricks possible
 
-  if (!DoNoTricks) // Tricks are possible
-  {
+    if (!DoNoTricks) // Tricks are possible
+    {
 	if ((MINCOUNT > 0) && (DOCOUNTBOUNDS))
-		for (i=0;i<dims;i++) SetCountBounds(Tab,CI[i],TCIc[i]);
+            for (i=0;i<dims;i++) SetCountBounds(Tab,CI[i],TCIc[i]);
 
 	if (DOSINGLETONS)
-		for (i=0;i<dims;i++) DoSingletons(Tab,CI[i],TCIu[i],i+1);
-  }
+            for (i=0;i<dims;i++) DoSingletons(Tab,CI[i],TCIu[i],i+1);
+    }
 
-  StopFilling: ;
+    StopFilling: ;
 
-  for (i=0;i<dims;i++)  // Free memory
-  {
+    for (i=0;i<dims;i++)  // Free memory
+    {
 	FreeCountCells(CI[i],TCIc[i]);
         Rows.erase(Rows.begin(),Rows.end());
         TCIu[i].erase(TCIu[i].begin(),TCIu[i].end());
-  }
+    }
 
-  Gijk.Free();
-  Vol.Free();
-  Leeg.Free();
-  Divs.Free();
+    //Not needed for std::vector. Is limited to this scope.
+    //Gijk.Free();
+    //Vol.Free();
+    //Leeg.Free();
+    //Divs.Free();
 }
 
 // Filling a table in JJ-format, determining maximum cost of interior cells if DoCosts=true
-int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost)
+//int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost)
+int FillTable(JJTable& Tab, std::vector< std::vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost)
 {
-  int i;
-  Vector<int> HVec;
+  //Vector<int> HVec;
+  std::vector<int> HVec;
 
-  HVec.Make(SGTab.size());
-  for (i=1;i<=SGTab.size();i++)    // number of categories per variable
+  //HVec.Make(SGTab.size());
+  HVec.resize(SGTab.size());
+  for (size_t i=1;i<=SGTab.size();i++)    // number of categories per variable
   {
-      if (SGTab[i][1] == 0) HVec[i] = 0;  // is only marginal ie., no "real" dimension
-      else HVec[i] = SGTab[i].size();
+      //if (SGTab[i][1] == 0) HVec[i] = 0;  // is only marginal ie., no "real" dimension
+      if (SGTab[i-1][0] == 0) HVec[i-1] = 0;  // is only marginal ie., no "real" dimension
+      //else HVec[i] = SGTab[i].size();
+      else HVec[i-1] = SGTab[i-1].size();
   }
   Tab.Init(HVec);
-  HVec.Free();
+  //HVec.Free(); Not needed for std::vector
 
   // Only up to 4 dimensional tables (cpu-time restrictions)
   // Tab.Dim() gives "real" dimension = # (HVec[i] <> 0)
@@ -899,7 +968,6 @@ int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vecto
 int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& MaxCost, int Hierarch,  int &ObjVal)  
 {
   clock_t start;
-  FILE* JJUit;
   FILE* FUit;
   int lcost, ucost;
   int i, marg, j;
@@ -941,10 +1009,6 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
       fclose(FUit);
   }
 
-  //PPDEBUG ? JJUit=OpenFile(PrepFile("JJUit.dat").c_str(),"a") : JJUit=OpenFile(PrepFile("JJUit.dat").c_str(),"w");
-  //Tab.PrintData(*JJUit);
-  //fclose(JJUit);
-
   start = clock();
   
   Load = LoadTableIntoPCSP(Solver,Tab);
@@ -982,7 +1046,8 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
         {
                 marg = 1;
                 for (j=1;(j<=Tab.Dim()) && (marg!=0);j++)
-                marg *= Tab.ijk[j][i];      // if marg==0 then marginal cell
+                //marg *= Tab.ijk[j][i];      // if marg==0 then marginal cell
+                marg *= Tab.ijk[j-1][i];      // if marg==0 then marginal cell
 
                 if ((Tab.status[i]=='m') && (marg==0)) 
                 {
@@ -1061,7 +1126,8 @@ int Update(Table& BTab, JJTable& Tab, int RetCode, std::vector<double>& bounds)
 
         marg=1;
         for (i=1;(i<=Tab.Dim()) && (marg!=0);i++)
-          marg *= Tab.ijk[i][m];     
+          //marg *= Tab.ijk[i][m];     
+          marg *= Tab.ijk[i-1][m];       
 		
 	if (marg==0)    // Als marg==0 dan marginaalcel
         {

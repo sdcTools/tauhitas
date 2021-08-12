@@ -18,7 +18,7 @@
 #ifndef __TABS_H
 #define __TABS_H
 #include <stdlib.h>
-#include <stdio.h>
+#include <cstdio>
 #include <malloc.h>
 #include <math.h>
 #include <vector>
@@ -41,9 +41,7 @@ typedef std::vector< std::map<std::string,int> > ExInCodeLijst;
 typedef struct
 	{double value; // Celwaarde
          char status;  // Status van de cel
-	 //CArray<double,double> Pbounds; // Protection levels
          std::vector<double> Pbounds; // Protection levels
-	 //CArray<double,double> Ebounds; // External (apriori) bounds
          std::vector<double> Ebounds; // External (apriori) bounds
 	 int CelCount; // Aantal bijdragers
 	 double CelCost;  // Cost to suppress this cell
@@ -73,19 +71,25 @@ class Table
 {
   typedef cell* column;
   private:
-    Vector<int> subdims;
+    //Vector<int> subdims;
+    std::vector<int> subdims;
     int size;
     column* body;
     void CreateColumn(column& newcol, int N);
   public:
-    void Getijk(int m, Vector<int> Gijk);
-    void MakeColumn(Vector<int> ijk);
+    //void Getijk(int m, Vector<int> Gijk);
+    void Getijk(int m, std::vector<int>& Gijk);
+    //void MakeColumn(Vector<int> ijk);
+    void MakeColumn(std::vector<int> ijk);
     int Dim() {return subdims.size();};
     int Size() {return size;};
-    int ColumnSize() {return subdims[subdims.size()];};
-    void Make(Vector<int> Dims);
+    //int ColumnSize() {return subdims[subdims.size()];};
+    int ColumnSize() {return subdims[subdims.size()-1];};
+    //void Make(Vector<int> Dims);
+    void Make(std::vector<int> Dims);
     column Column(int i) {if (body[i]==NULL) return NULL; else return body[i];};
-    cell* operator[] (Vector<int> ijk);
+    //cell* operator[] (Vector<int> ijk);
+    cell* operator[] (std::vector<int> ijk);
     column* operator[] (int i) {return &body[i];};
     int ReadData(const char* FName);
     void Free();
@@ -104,9 +108,12 @@ class JJTable
     int BDim(){return basedim;};
     int Dim() {return N.size();};
     int Size(){return size;};
-    Vector<int> N;        // Voor JJ: maximaal N1, N2, N3
-    Vector<int*> ijk;     // Voor JJ: maximaal *ijk1, *ijk2, *ijk3
-    Vector<int>* baseijk; // Met de coordinaten in de bodemtabel
+    //Vector<int> N;        // Voor JJ: maximaal N1, N2, N3
+    std::vector<int> N;        // for JJ: max N1, N2, N3
+    //Vector<int*> ijk;     // Voor JJ: maximaal *ijk1, *ijk2, *ijk3
+    std::vector<int*> ijk;     // for JJ: max *ijk1, *ijk2, *ijk3
+    //Vector<int>* baseijk; // Met de coordinaten in de bodemtabel
+    std::vector<int>* baseijk; // With the coordinates in teh basetable
     int *weight,*count;
     int NumberOfUnsafeCells;
     int NumberOfSafeCells;
@@ -117,13 +124,15 @@ class JJTable
     std::vector<addsuminfo> AdditionalConstraints;
     std::vector<addcellinfo> AdditionalCells;
     void PrintData(FILE& Uitfile);
-    void PrintWeights(FILE& Uitfile, Vector< Vector<int> > SGTab);
+    //void PrintWeights(FILE& Uitfile, Vector< Vector<int> > SGTab);
+    void PrintWeights(FILE& Uitfile, std::vector< std::vector<int> > SGTab);
     void PrintStats(FILE& Uitfile);
     void PrintAdditionalInfo(FILE& Uitfile);
     void PrintBasisStats(FILE& Uitfile, Table& BTab);
     void SaveBasisStatsBefore(std::string& TableList, Table& BTab);
     void SaveBasisStatsAfter(std::string& TableList, Table& BTab);
-    void Init(Vector<int> L);
+    //void Init(Vector<int> L);
+    void Init(std::vector<int> L);
     void Free();
 };
 #endif   /* __TABS_H */

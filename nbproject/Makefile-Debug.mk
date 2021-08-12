@@ -77,52 +77,52 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libtauhitas.${CND_DLIB_EXT}: ${OBJECT
 ./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h: hitasctrl.swg
 	${MKDIR} -p ./src ./src
 	@echo Performing Custom Build Step
-	E:/W7/Users/Peter-Paul/MyDocuments/Thuiswerk/Programmatuur/swigwin-3.0.12/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
+	D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
 
 ${OBJECTDIR}/src/ALList.o: src/ALList.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ALList.o src/ALList.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ALList.o src/ALList.cpp
 
 ${OBJECTDIR}/src/AMiscFunc.o: src/AMiscFunc.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/AMiscFunc.o src/AMiscFunc.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/AMiscFunc.o src/AMiscFunc.cpp
 
 ${OBJECTDIR}/src/AMyLoadProb.o: src/AMyLoadProb.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/AMyLoadProb.o src/AMyLoadProb.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/AMyLoadProb.o src/AMyLoadProb.cpp
 
 ${OBJECTDIR}/src/ATabs.o: src/ATabs.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ATabs.o src/ATabs.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ATabs.o src/ATabs.cpp
 
 ${OBJECTDIR}/src/Adefs.o: src/Adefs.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Adefs.o src/Adefs.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Adefs.o src/Adefs.cpp
 
 ${OBJECTDIR}/src/Ahier.o: src/Ahier.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Ahier.o src/Ahier.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Ahier.o src/Ahier.cpp
 
 ${OBJECTDIR}/src/Amyio.o: src/Amyio.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Amyio.o src/Amyio.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/Amyio.o src/Amyio.cpp
 
 ${OBJECTDIR}/src/HiTaSCtrl.o: src/HiTaSCtrl.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
 
 ${OBJECTDIR}/src/HiTaSCtrl_wrap.o: src/HiTaSCtrl_wrap.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
 
 ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o: src/Versioninfo.rc
 	${MKDIR} -p ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src
@@ -132,7 +132,7 @@ ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o: src/Versioninfo.r
 ${OBJECTDIR}/src/WrapCSP.o: src/WrapCSP.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include -I/C/Program\ Files\ \(x86\)/Java/jdk1.8.0_212/include/win32  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/WrapCSP.o src/WrapCSP.cpp
+	$(COMPILE.cc) -g -DSECBOUNDS -I../Solvers/Cplex/Cplex75/include/ilcplex -I../Solvers/XPress/XPress_19 -I../Solvers/scip-3.1.1/src -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include -I../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32 -I../build/include  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/WrapCSP.o src/WrapCSP.cpp
 
 # Subprojects
 .build-subprojects:

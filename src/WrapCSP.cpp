@@ -20,6 +20,7 @@
 // Currently only CPLEX, SCIP and XPRESS available
 #include <string.h>
 #include "WrapCSP.h"
+#include "resource.h"
 
 void CSPSetFileNames(const char* Solver, const char* dir)
 {
@@ -78,12 +79,15 @@ int    CSPoptimize(const char* Solver, IProgressListener* ProgressListener)
 int    CSPloadprob(const char* Solver, int nsums_,double *rhs_,int ncells_,double *data_,int  *weight_,char *status_,double *lpl_,double *upl_,double *lb_,double *ub_,char **names_,int  *nlist_,int  *listcell_,signed char *listcoef_)
 {
     int retval = -1;
-    if (strcmp(Solver,"CPLEX")==0) 
+    if (strcmp(Solver,"CPLEX")==0)
         retval = CPLEXv::CSPloadprob(nsums_,rhs_,ncells_,data_,weight_,status_,lpl_,upl_,lb_,ub_,names_,nlist_,listcell_,listcoef_);
     if (strcmp(Solver,"SCIP")==0) 
         retval = SCIPv::CSPloadprob(nsums_,rhs_,ncells_,data_,weight_,status_,lpl_,upl_,lb_,ub_,names_,nlist_,listcell_,listcoef_);
     if (strcmp(Solver,"XPRESS")==0) 
         retval = XPRESSv::CSPloadprob(nsums_,rhs_,ncells_,data_,weight_,status_,lpl_,upl_,lb_,ub_,names_,nlist_,listcell_,listcoef_);
+    if (retval){
+        throw(HITAS_JJNOTLOADED);
+    }
     return retval;
 }
 

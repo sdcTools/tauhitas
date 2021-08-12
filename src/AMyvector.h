@@ -22,6 +22,7 @@
 #include "AErrors.h"
 #include "resource.h"
 #include <cstdlib>
+#include <vector>
 
 extern void LogPrintf(const char* LogName, const char* LogMessage);
 extern void LogPrintf(const char* LogName, std::string LogMessage);
@@ -41,7 +42,7 @@ template <class T> class Vector
   public:
         Vector();
 	virtual ~Vector();
-	T& Body() {return *body;};
+	//T& Body() {return *body;};
         int size() {return dim;};
         T& operator [] (int i) {return body[i-1];};
 	const T& operator [] (int i) const {return body[i-1];};
@@ -62,8 +63,8 @@ template <class T> Vector<T>::~Vector()
 template <class T> void Vector<T>::Make(int L)
 {
     if (L < 0) L = 0;				// Empty Vector in case L is negative
-    body = (T*) malloc(L*sizeof(T)); 
-    if (body==NULL)
+    body = (T*) malloc(L*sizeof(T));            // Is body = malloc(0) safe to use (i.e., when L=0)? 
+    if (body==NULL)                             // Is malloc save to use for any type T, even Vector<T>?
     {
         LogPrintf(LogName,"Not enough memory in Vector<T>.Make()\n");
         exit(HITAS_NOTENOUGHMEMORY);
@@ -80,7 +81,7 @@ template <class T> void Vector<T>::Grow(int L)
     }
     else
     {  
-        body = (T*) realloc(body,(dim + L)*sizeof(T)); 
+        body = (T*) realloc(body,(dim + L)*sizeof(T)); // realloc can be unsafe when used with complex types T?
         if ((body==NULL) && (dim+L != 0))
 	{
             LogPrintf(LogName,"Not enough memory to Grow Vector<T> by ");

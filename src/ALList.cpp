@@ -43,8 +43,9 @@ void LList::Fill()
 {
 	for (int i=0; i<=dim; i++)
 	{
-                data[i].Gname.assign(1,1);
-		data[i].Gname[0] = i;
+                //data[i].Gname.assign(1,1);
+		//data[i].Gname[0] = i;
+                data[i].Gname.assign(1,i);
 		data[i].Gnr = i;
 	}
 }
