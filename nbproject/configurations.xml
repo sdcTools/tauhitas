@@ -65,41 +65,13 @@
         <ccTool>
           <incDir>
             <pElem>../Solvers/Cplex/Cplex75/include/ilcplex</pElem>
-            <pElem>../Solvers/XPress/XPress_19</pElem>
+            <pElem>../Solvers/XPress/XPress_28/x86</pElem>
             <pElem>../Solvers/scip-3.1.1/src</pElem>
-            <pElem>../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include</pElem>
-            <pElem>../../../Java/zulu8.44.0.13-ca-fx-jdk8.0.242-win_i686/include/win32</pElem>
-            <pElem>../build/include</pElem>
+            <pElem>../Solvers/soplex-2.0.1/src</pElem>
           </incDir>
-          <commandLine>-m32 -ggdb</commandLine>
-          <preprocessorList>
-            <Elem>SECBOUNDS</Elem>
-          </preprocessorList>
         </ccTool>
         <linkerTool>
-          <linkerAddLib>
-            <pElem>../CSP/dist/Debug/MinGW-Windows</pElem>
-            <pElem>../Solvers/Cplex/Cplex75/lib</pElem>
-            <pElem>../Solvers/XPress</pElem>
-            <pElem>../Solvers/scip-3.1.1/lib</pElem>
-            <pElem>../Solvers/soplex-2.0.1/lib</pElem>
-          </linkerAddLib>
           <additionalDep>${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o</additionalDep>
-          <linkerLibItems>
-            <linkerLibLibItem>CSPlibCPLEX</linkerLibLibItem>
-            <linkerLibLibItem>cplex75</linkerLibLibItem>
-            <linkerLibLibItem>CSPlibXPRESS</linkerLibLibItem>
-            <linkerLibLibItem>xprl</linkerLibLibItem>
-            <linkerLibLibItem>xprs</linkerLibLibItem>
-            <linkerLibLibItem>CSPlibSCIP</linkerLibLibItem>
-            <linkerLibLibItem>scip</linkerLibLibItem>
-            <linkerLibLibItem>lpispx</linkerLibLibItem>
-            <linkerLibLibItem>nlpi.cppad</linkerLibLibItem>
-            <linkerLibLibItem>objscip</linkerLibLibItem>
-            <linkerLibLibItem>soplex</linkerLibLibItem>
-            <linkerOptionItem>${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o</linkerOptionItem>
-          </linkerLibItems>
-          <commandLine>-Wl,--kill-at</commandLine>
         </linkerTool>
       </compileType>
       <item path="hitasctrl.swg" ex="false" tool="3" flavor2="0">

@@ -60,7 +60,7 @@ cell* Table::operator[] (std::vector<int> ijk)
   char buffer[256];
   if (ijk.size() != subdims.size())
   {
-      sprintf(buffer,"ijk.size()=%d should equal subdims.size()=%d\n",ijk.size(),subdims.size());
+      sprintf(buffer,"ijk.size()=%zd should equal subdims.size()=%zd\n",ijk.size(),subdims.size());
       LogPrintf(LogName,"Dimensions don't match.\n Something is seriously wrong in your table!\n");
       LogPrintf(LogName,buffer);
       WriteErrorToLog(LogName,HITAS_TABDIMSDONTMATCH);

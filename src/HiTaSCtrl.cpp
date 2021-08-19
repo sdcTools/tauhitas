@@ -685,7 +685,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
         std::string TableList, TableName, TmpTableName, FileName, BTabFileName, TmpName;
         
         int JJaant=0, Totaant=0, aantBT=0;
-        int res, i, k, tel, M, ObjVal, ReturnCode, realdim;
+        int res=0, i, k, tel, M, ObjVal, ReturnCode=0, realdim;
         int MAXLINE=256;
 
         bool DaCapo=true;               // Boolean used to control backtracking
@@ -1096,9 +1096,9 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
 
                         if (realdim >= 0)         // We should have something to do
                         {
-                            char VolgNr[10];
+                            char VolgNr[10]; // i.e., up to 999999999 subtables possible
                             //_itoa(j,VolgNr,10);
-                            sprintf(VolgNr,"%d",j);
+                            snprintf(VolgNr,10,"%d",(int) j); // snprintf is safer than sprintf
                             TableName = TmpTableName + '.' + VolgNr;
                                                 
                             if (ListsOfTables.find(TableName) == ListsOfTables.end()) // Not found
