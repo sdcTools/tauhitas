@@ -11,7 +11,6 @@
       <itemPath>src/AMiscFunc.h</itemPath>
       <itemPath>src/AMyIO.h</itemPath>
       <itemPath>src/AMyLoadProb.h</itemPath>
-      <itemPath>src/AMyvector.h</itemPath>
       <itemPath>src/ATabs.h</itemPath>
       <itemPath>src/Aconst.h</itemPath>
       <itemPath>src/Amain.h</itemPath>
@@ -100,8 +99,6 @@
       </item>
       <item path="src/AMyLoadProb.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/AMyvector.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="src/ATabs.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/ATabs.h" ex="false" tool="3" flavor2="0">
@@ -178,8 +175,6 @@
       <item path="src/AMyLoadProb.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/AMyLoadProb.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/AMyvector.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/ATabs.cpp" ex="false" tool="1" flavor2="0">
       </item>

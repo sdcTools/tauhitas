@@ -27,7 +27,6 @@
 #include "resource.h"
 
 #include "AMiscFunc.h"
-#include "AMyvector.h"
 #include "AMyIO.h"
 #include "AMyLoadProb.h"
 #include "WrapCSP.h"
@@ -55,23 +54,21 @@ double seconds()
 //static bool Getijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
 static bool Getijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
 {
-  // Assume that Gijk.size() >= 1
-  //int i;
-  size_t i;
-  int prod=1;
-  div_t x;
-  int y=m;
-  if (Gijk.size() == 1)
-  {
+    // Assume that Gijk.size() >= 1
+    assert(Gijk.size()>=1);
+    //int i;
+    size_t i;
+    int prod=1;
+    div_t x={0};
+    int y=m;
+    if (Gijk.size() == 1){
 	//Gijk[1] = m;
         Gijk[0] = m;
 	prod = m;
-  }
-  else  
-  {
+    }
+    else{
 	//for (i=1;i<Gijk.size();i++)
-        for (i=1;i<Gijk.size();i++)
-	{
+        for (i=1;i<Gijk.size();i++){
 	    //x = div(y,TabDims[i]);
             x = div(y,TabDims[i-1]);
 	    //Gijk[Gijk.size()-i+1] = x.rem;
@@ -84,8 +81,8 @@ static bool Getijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
         Gijk[0]=x.quot;
         //prod *= Gijk[Gijk.size()-i+1];
         prod *= Gijk[Gijk.size()-i];
-  }
-  return (prod == 0); // If at least one 0 then marginal cell
+    }
+    return (prod == 0); // If at least one 0 then marginal cell
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,71 +502,66 @@ static void SetCountBounds(JJTable& Tab, CountInfo& Y, TotCountInfo &Yc)
 // combining row with Spos determines whish index is running
 static void GetCel2(JJTable &Tab, std::string row, int Spos, celinfo& Cel2, int NonFixedIndex)
 {
-	int i,k,Npos;
-        std::string::size_type pt;
+    int i,k,Npos;
+    std::string::size_type pt;
 
-	//Vector<int> Gijk;
-        std::vector<int> Gijk;
-	//Vector<int> TabDims;
-        std::vector<int> TabDims;
-	//Gijk.Make(Tab.Dim());
-        Gijk.resize(Tab.Dim());
-	//TabDims.Make(Tab.Dim());
-        TabDims.resize(Tab.Dim());
+    //Vector<int> Gijk;
+    std::vector<int> Gijk;
+    //Vector<int> TabDims;
+    std::vector<int> TabDims;
+    //Gijk.Make(Tab.Dim());
+    Gijk.resize(Tab.Dim());
+    //TabDims.Make(Tab.Dim());
+    TabDims.resize(Tab.Dim());
         
-	// TabDims[1] = Tab.N[Dim], TabDims[2] = Tab.N[Dim-1] ... TabDims[Dim] = 1
-	// Needed for Calc_m
-	for (i=1;i<Tab.Dim();i++)
-		//TabDims[i] = Tab.N[Tab.Dim()-i+1];
-                TabDims[i-1] = Tab.N[Tab.Dim()-i];
-	//TabDims[Tab.Dim()] = 1;
-        TabDims[Tab.Dim()-1] = 1;
+    // TabDims[1] = Tab.N[Dim], TabDims[2] = Tab.N[Dim-1] ... TabDims[Dim] = 1
+    // Needed for Calc_m
+    for (i=1;i<Tab.Dim();i++)
+	//TabDims[i] = Tab.N[Tab.Dim()-i+1];
+        TabDims[i-1] = Tab.N[Tab.Dim()-i];
+    //TabDims[Tab.Dim()] = 1;
+    TabDims[Tab.Dim()-1] = 1;
 
-        pt = row.find('.');
-	if (pt == std::string::npos)		// No . found, so Tab.Dim == 1
-	{
-		//for (k=1;k<Tab.N[1];k++)
-                for (k=1;k<Tab.N[0];k++)
-			if ((Tab.status[k]=='u') && (k!=Spos))
-			{ // Looking for dominance primary
-				Cel2.count = Tab.count[k];
-				Cel2.position = k;
-				Cel2.value = Tab.data[k];
-				break; // Found
-			}//
+    pt = row.find('.');
+    if (pt == std::string::npos){		// No . found, so Tab.Dim == 1
+	//for (k=1;k<Tab.N[1];k++)
+        for (k=1;k<Tab.N[0];k++){
+            if ((Tab.status[k]=='u') && (k!=Spos)){
+                // Looking for dominance primary
+		Cel2.count = Tab.count[k];
+		Cel2.position = k;
+		Cel2.value = Tab.data[k];
+		break; // Found
+            }//
 	}
-	else	// Read "fixed indices"
-	{
-		for (i=1;i<=Tab.Dim();i++)
-		{
-			if (i != NonFixedIndex)
-			{
-                                //Gijk[i] = atoi(row.substr(0,pt).c_str());
-                                Gijk[i-1] = atoi(row.substr(0,pt).c_str());
-                                row = row.substr(pt+1);
-                                pt = row.find('.');
-			}
-		}
+    }
+    else{	// Read "fixed indices"
+	for (i=1;i<=Tab.Dim();i++){
+            if (i != NonFixedIndex){
+                //Gijk[i] = atoi(row.substr(0,pt).c_str());
+                Gijk[i-1] = atoi(row.substr(0,pt).c_str());
+                row = row.substr(pt+1);
+                pt = row.find('.');
+            }
 	}
+    }
 
-	//for (k=1;k<Tab.N[NonFixedIndex];k++)
-        for (k=1;k<Tab.N[NonFixedIndex-1];k++)
-	{
-		//Gijk[NonFixedIndex] = k;
-                Gijk[NonFixedIndex-1] = k;
-		Calc_m(Gijk,TabDims,Npos);
-		if ((Tab.status[Npos]=='u') && (Npos != Spos))
-		{ // Looking for dominance primary
-			Cel2.count = Tab.count[Npos];
-			Cel2.position = Npos;
-			Cel2.value = Tab.data[Npos];
-			break; // Found
-		}
+    //for (k=1;k<Tab.N[NonFixedIndex];k++)
+    for (k=1;k<Tab.N[NonFixedIndex-1];k++){
+	//Gijk[NonFixedIndex] = k;
+        Gijk[NonFixedIndex-1] = k;
+	Calc_m(Gijk,TabDims,Npos);
+	if ((Tab.status[Npos]=='u') && (Npos != Spos)){ // Looking for dominance primary
+            Cel2.count = Tab.count[Npos];
+            Cel2.position = Npos;
+            Cel2.value = Tab.data[Npos];
+            break; // Found
 	}
+    }
 
-        //Not needed for std::vector. Is restricted to this scope.
-	//Gijk.Free();
-	//TabDims.Free();
+    //Not needed for std::vector. Is restricted to this scope.
+    //Gijk.Free();
+    //TabDims.Free();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -580,79 +572,71 @@ static void GetCel2(JJTable &Tab, std::string row, int Spos, celinfo& Cel2, int 
 // Yu has total number of unsafe cells for each row
 static void DoSingletons(JJTable& Tab, CountInfo& Y, TotCountInfo& Yu, int NonFixedIndex)
 {
-	std::string row;
-	TotCountInfo::iterator pos;
-	addcellinfo CellInfo;
-	addsuminfo Constraint;
-	bool DoIt;
-	std::vector<celinfo>* Cellen;
-	celinfo Cel1, Cel2;
-	int cellposition, rowcount;
+    std::string row;
+    TotCountInfo::iterator pos;
+    addcellinfo CellInfo = addcellinfo();
+    addsuminfo Constraint = addsuminfo();
+    bool DoIt;
+    std::vector<celinfo>* Cellen;
+    celinfo Cel1 = celinfo(), Cel2 = celinfo();
+    int cellposition, rowcount;
 
-        cellposition = Tab.Size() - 1 + Tab.AdditionalCells.size();
+    cellposition = Tab.Size() - 1 + Tab.AdditionalCells.size();
 
-        for(pos = Yu.begin(); pos != Yu.end(); ++pos)
-	{
-		DoIt = false;
-                row = pos->first;
-                rowcount = pos->second;
+    for(pos = Yu.begin(); pos != Yu.end(); ++pos){
+	DoIt = false;
+        row = pos->first;
+        rowcount = pos->second;
 		
-                if (Y.find(row)!= Y.end())
-		{
-			if (rowcount == 2)					// Exactly two primary cells with at least one frequency-unsafe cell
-			{
-                                Cellen = Y.find(row)->second;
-                                if (Cellen->size() == 2)			// Two frequency-unsafe cells
-				{
-					Cel1 = Cellen->at(0);
-					Cel2 = Cellen->at(1);
-					if (Cel1.count == 1 || Cel2.count == 1) // At least one singleton
-					{
-						if ( (Cel1.count == 1) && (Cel2.count == 1) ) // We have two singletons
-							DoIt = DOSINGLEWITHSINGLE;	      // and we might want to do the trick
-						else					      // We have one singleton and one frequency-unsafe cell 
-							DoIt = DOSINGLEWITHMORE;	      // and we might want to do the trick
-					}
-				}
-				else	// One frequency-unsafe cell and one dominance unsafe cell
-				{
-					Cel1 = Cellen->at(0);
-					if ( Cel1.count == 1 ) // Cel1 is singleton 
-					{
-						GetCel2(Tab,row,Cel1.position,Cel2,NonFixedIndex);	// find dominance unsafe cell
-						DoIt = DOSINGLEWITHMORE;				// and we might want to do the trick
-					}
-                                        else DoIt = false;
-				}
-			//} // Only DoIt possible if exactly 2 primaries
-
-			if (DoIt)			// Construct additional "pseudo-cell" and corresponding constraint
-			{
-				cellposition++;
-				
-				Constraint.rhs = 0.0;
-				Constraint.ncard = 3;
-				Constraint.Cells = (int*) malloc(3*sizeof(int));
-				Constraint.Cells[0] = cellposition;
-				Constraint.Cells[1] = Cel1.position;
-				Constraint.Cells[2] = Cel2.position;
-                                
-				CellInfo.position = cellposition;
-				CellInfo.value = Cel1.value + Cel2.value;
-				CellInfo.weight = 1;
-				CellInfo.status = 'u';
-				CellInfo.lb = (Constraint.ncard - 1)*MINTABVAL;
-				CellInfo.ub = (Constraint.ncard - 1)*MAXTABVAL;
-				CellInfo.lpl = TRICK_LPL;
-				CellInfo.upl = TRICK_UPL;
-				CellInfo.spl = TRICK_SPL;
-			
-				Tab.AdditionalConstraints.push_back(Constraint);
-				Tab.AdditionalCells.push_back(CellInfo);
-			}
-                        } // ?? Should be here instead on 26 lines earlier ??
+        if (Y.find(row)!= Y.end()){
+            if (rowcount == 2){					// Exactly two primary cells with at least one frequency-unsafe cell
+                Cellen = Y.find(row)->second;
+                if (Cellen->size() == 2){			// Two frequency-unsafe cells
+                    Cel1 = Cellen->at(0);
+                    Cel2 = Cellen->at(1);
+                    if (Cel1.count == 1 || Cel2.count == 1){ // At least one singleton
+			if ( (Cel1.count == 1) && (Cel2.count == 1) ) // We have two singletons
+                            DoIt = DOSINGLEWITHSINGLE;	      // and we might want to do the trick
+			else					      // We have one singleton and one frequency-unsafe cell 
+                            DoIt = DOSINGLEWITHMORE;	      // and we might want to do the trick
+                    }
 		}
+		else{	// One frequency-unsafe cell and one dominance unsafe cell
+                    Cel1 = Cellen->at(0);
+                    if ( Cel1.count == 1 ){ // Cel1 is singleton 
+			GetCel2(Tab,row,Cel1.position,Cel2,NonFixedIndex);	// find dominance unsafe cell
+			DoIt = DOSINGLEWITHMORE;				// and we might want to do the trick
+                    }
+                    else DoIt = false;
+		}
+		//} // Only DoIt possible if exactly 2 primaries
+
+                if (DoIt){			// Construct additional "pseudo-cell" and corresponding constraint
+                    cellposition++;
+                    
+                    Constraint.rhs = 0.0;
+                    Constraint.ncard = 3;
+                    Constraint.Cells = (int*) malloc(3*sizeof(int));
+                    Constraint.Cells[0] = cellposition;
+                    Constraint.Cells[1] = Cel1.position;
+                    Constraint.Cells[2] = Cel2.position;
+                                
+                    CellInfo.position = cellposition;
+                    CellInfo.value = Cel1.value + Cel2.value;
+                    CellInfo.weight = 1;
+                    CellInfo.status = 'u';
+                    CellInfo.lb = (Constraint.ncard - 1)*MINTABVAL;
+                    CellInfo.ub = (Constraint.ncard - 1)*MAXTABVAL;
+                    CellInfo.lpl = TRICK_LPL;
+                    CellInfo.upl = TRICK_UPL;
+                    CellInfo.spl = TRICK_SPL;
+			
+                    Tab.AdditionalConstraints.push_back(Constraint);
+                    Tab.AdditionalCells.push_back(CellInfo);
+                }
+            } // ?? Should be here instead on 26 lines earlier ??
 	}
+    }
 }
 
 static void SumPrimaryCells(TotCountInfo& Cc, std::string row)

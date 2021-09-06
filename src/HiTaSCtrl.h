@@ -26,8 +26,8 @@
 #include <iostream>
 #include <time.h>
 
-//class __declspec(dllexport) HiTaSCtrl
-class HiTaSCtrl
+class __declspec(dllexport) HiTaSCtrl
+//class HiTaSCtrl
 {
 private:
     double JJzero;

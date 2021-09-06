@@ -26,6 +26,7 @@
 #include "resource.h"
 #include "WrapCSP.h"
 #include <vector>
+#include <cassert>
 
 void PrintAdditionalInfo(std::vector<addcellinfo>& Cells, std::vector<addsuminfo>& Constraints, char** names, int i0);
 
@@ -45,34 +46,33 @@ extern bool PPDEBUG;
 //static bool Calc_ijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
 static bool Calc_ijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
 {
-  size_t i;
-  int prod=1;
-  div_t x;
-  int y=m;
-  if (Gijk.size() == 1)
-  {
+    // Assume that Gijk.size() >= 1
+    assert(Gijk.size()>=1);
+    size_t i;
+    int prod=1;
+    div_t x={0};
+    int y=m;
+    if (Gijk.size() == 1){
 	//Gijk[1] = m;
         Gijk[0] = m;
 	prod = m;
-  }
-  else
-  {
-    for (i=1;i<Gijk.size();i++)
-    {
-        //x = div(y,TabDims[i]);
-        x = div(y,TabDims[i-1]);
-        //Gijk[Gijk.size()-i+1] = x.rem;
-        Gijk[Gijk.size()-i] = x.rem;
-        y=x.quot;
-        //prod *= Gijk[Gijk.size()-i+1];  // If at least one 0 then marginal cell
-        prod *= Gijk[Gijk.size()-i];  // If at least one 0 then marginal cell
     }
-    //Gijk[1]=x.quot;
-    Gijk[0]=x.quot;
-    //prod *= Gijk[Gijk.size()-i+1];
-    prod *= Gijk[Gijk.size()-i];
-  }
-  return (prod == 0); // If at least one 0 then marginal cell
+    else{
+        for (i=1;i<Gijk.size();i++){
+            //x = div(y,TabDims[i]);
+            x = div(y,TabDims[i-1]);
+            //Gijk[Gijk.size()-i+1] = x.rem;
+            Gijk[Gijk.size()-i] = x.rem;
+            y=x.quot;
+            //prod *= Gijk[Gijk.size()-i+1];  // If at least one 0 then marginal cell
+            prod *= Gijk[Gijk.size()-i];  // If at least one 0 then marginal cell
+        }
+        //Gijk[1]=x.quot;
+        Gijk[0]=x.quot;
+        //prod *= Gijk[Gijk.size()-i+1];
+        prod *= Gijk[Gijk.size()-i];
+    }
+    return (prod == 0); // If at least one 0 then marginal cell
 }
 
 // Converts position Gijk into co�rdinates m

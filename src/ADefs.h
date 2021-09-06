@@ -19,7 +19,6 @@
 #define __DEFS_H
 
 #include "ALList.h"
-#include "AMyvector.h"
 #include "AHier.h"
 #include "ATabs.h"
 #include "AErrors.h"
@@ -28,6 +27,10 @@
 extern StringTable ErrorStrings;
 
 extern void WriteErrorToLog(std::string LogName, int ErrorCode);
+
+extern void LogPrintf(const char* LogName, const char* LogMessage);
+extern void LogPrintf(const char* LogName, std::string LogMessage);
+extern void LogPrintf(std::string LogName, std::string LogMessage);
 
 //void DefineNonHierStruc(Vector<Hierarchy> S, Vector< Vector<int> >& ITab);
 void DefineNonHierStruc(std::vector<Hierarchy> S, std::vector< std::vector<int> >& ITab);

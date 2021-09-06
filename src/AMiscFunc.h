@@ -17,7 +17,7 @@
 
 #ifndef __MISCFUNC_H
 #define __MISCFUNC_H
-#include "AMyvector.h"
+
 #include "AHier.h"
 #include "ATabs.h"
 

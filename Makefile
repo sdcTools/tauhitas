@@ -90,7 +90,7 @@ LDLIBSOPTIONS   = $(CSPLIBS) $(CPXLIBS) $(XPRLIBS) $(SCIPLIBS) $(CND_BUILDDIR)/$
 # CC Compiler Flags
 SFLAGS          = -c++ -I./src -java -package $(JAVAPACKAGE) -outdir $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 #CXXFLAGS        = -ggdb -DSECBOUNDS $(BITS) -fPIC -malign-double -std=c++11 -Wall
-CXXFLAGS        = -ggdb -g -Og -DSECBOUNDS $(BITS) -fPIC -std=c++11 -Wall
+CXXFLAGS        = -g -O2 -DSECBOUNDS $(BITS) -fPIC -std=c++11 -Wall -fno-strict-aliasing
 LDFLAGS         = $(CXXFLAGS) -Wl,--subsystem,windows -Wl,--kill-at -shared 
 
 .PHONY: all clean

@@ -25,7 +25,6 @@
 #include "Aconst.h"
 #include "ATabs.h"
 #include "ALList.h"
-#include "AMyvector.h"
 
 #define __min(a,b)  (((a) < (b)) ? (a) : (b))
 #define __max(a,b)  (((a) > (b)) ? (a) : (b))

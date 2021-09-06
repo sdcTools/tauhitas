@@ -27,8 +27,6 @@
 #include "Aconst.h"
 #include "AHier.h"
 #include "AErrors.h"
-//#include "Amain.h"
-#include "AMyvector.h"
 
 //typedef CArray<CMap<int,int,CString,LPCSTR>, CMap<int,int,CString,LPCSTR>& > InExCodeLijst;
 typedef std::vector< std::map<int,std::string> > InExCodeLijst;

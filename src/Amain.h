@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "AMyvector.h"
 #include "WrapCSP.h"
 
 double MAX_TIME;

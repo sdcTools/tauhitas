@@ -18,7 +18,6 @@
 #ifndef __ACONST_H__
 #define __ACONST_H__
 
-#include "AMyvector.h"
 #include <vector>
 extern int MINCOUNT;     // Minimale aantal bijdragers
 extern double LOWERMARG; // Percentage voor ondergrens marge secundaire cel

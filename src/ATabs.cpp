@@ -334,6 +334,7 @@ void JJTable::Init(std::vector<int> L)
   }
 
   //ijk.Make(Rdim);
+  ijk.clear();
   ijk.resize(Rdim);
   //for (i=1;i<=Rdim;i++)
   for (i=0;i<Rdim;i++)
@@ -365,7 +366,8 @@ void JJTable::Init(std::vector<int> L)
 	  WriteErrorToLog(LogName,HITAS_NOTENOUGHMEMORY);
 	  exit(HITAS_NOTENOUGHMEMORY);
   }
-  for (i=0;i<size;i++) weight[i] = (int) MAXDISTANCE;            
+  //for (i=0;i<size;i++) weight[i] = (int) MAXDISTANCE;
+  for (i=0;i<size;i++) weight[i] = (int) MAXWEIGHT;
   
   costs = (double*) malloc(size*sizeof(double));
   if (costs==NULL) 
