@@ -1004,11 +1004,15 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
 	  throw(HITAS_JJNOTLOADED);
   }
 
-  CSPoptimize(Solver,NULL);
-
-  CSPsolution(Solver,&lcost, &ucost, Tab.status);
+//  CSPoptimize(Solver,NULL);
+  if (CSPoptimize(Solver,NULL)){
+        ucost = CSPGetDoubleConstant(Solver,JJINF);
+        lcost = ucost;
+  }
+  else{
+        CSPsolution(Solver,&lcost, &ucost, Tab.status);
+  }
   ObjVal = (int) ucost;
-
   CSPfreeprob(Solver);
 
   JJTime = (double) (clock()-start)/CLOCKS_PER_SEC;

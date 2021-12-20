@@ -132,7 +132,7 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         char slicmsg[256] = "";
         std::string ferror;
         FILE *ErrorFile;
-    
+
         ferror = PrepFile("XPerror.log");
         
         ierr = XPRSinit(NULL);
@@ -1045,7 +1045,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                     for (unsigned int uj=0;uj<SubGs[i]->Gname.size();uj++)
                     {
                         //_itoa(SubGs[i]->Gname[uj],tmpchar,10);
-                        sprintf(tmpchar,"%d",SubGs[i]->Gname[uj]);
+                        snprintf(tmpchar,3,"%d",SubGs[i]->Gname[uj]);
                         TmpTableName = TmpTableName + tmpchar;
                     }
 
@@ -1069,7 +1069,6 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                             fprintf(JJUit,"\n");
                             fclose(JJUit);
                         }
-
                         
                         //if (DISTANCE!=0)
                         //    realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, false, MaxCost);
@@ -1126,7 +1125,7 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                                                                 
                                     fprintf(JJUit,"\n");
                                     fclose(JJUit);
-
+                        
                                     Tab.SaveBasisStatsBefore(TableList,BTab); // Save statuses of table before JJ
                                     try                                       // Apply protection (JJ)
                                     {

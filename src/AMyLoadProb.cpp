@@ -190,7 +190,7 @@ int LoadTableIntoPCSP(const char* Solver, JJTable& Tab)
 {
         int i, j, m, t, s, k, Nzeros, pos, ncells, nsums, nlist, fac;//, nAddCellsBase;
         unsigned int usi;
-        int* zeros, *position, *ncard, *list,  *weights;
+        int *zeros, *position, *ncard, *list,  *weights;
         double *rhs, *data, *lb, *ub, *lpl, *upl, *spl;
 	char *status;
         char **names;
