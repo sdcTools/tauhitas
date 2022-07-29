@@ -64,7 +64,7 @@ public:
     {
         //m_ProgressListener = NULL;
         // Load from file the strings assigned to error-codes
-	//LoadErrorStrings(ErrorStrings);
+	LoadErrorStrings(ErrorStrings);
     
 	// Default settings for JJ-variables, in case of Cplex
 	JJzero        = 1E-7;
