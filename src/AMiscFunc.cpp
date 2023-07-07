@@ -424,76 +424,76 @@ static void CalcPbounds(cell* BCell, const std::vector<double>& bounds)
 // Yc has total number of contributors of all unsafe cells for each row map<key=std::string,value=int>
 static void SetCountBounds(JJTable& Tab, CountInfo& Y, TotCountInfo &Yc)
 {
-        unsigned int i;
-	int rowcount, cellposition;
-	double value;
-	bool DoIt;
-	//std::vector<int> Cellpositions; ??Not used
-	addcellinfo CellInfo;
-	addsuminfo Constraint;
-	std::string row;
-        TotCountInfo::iterator pos;
-	std::vector<celinfo>* Cellen;
-	celinfo Cel;
+    unsigned int i;
+    int rowcount, cellposition;
+    double value;
+    bool DoIt;
+    //std::vector<int> Cellpositions; ??Not used
+    addcellinfo CellInfo;
+    addsuminfo Constraint;
+    std::string row;
+    TotCountInfo::iterator pos;
+    std::vector<celinfo>* Cellen;
+    celinfo Cel;
 //        celinfo Cel1, Cel2;
 
-        cellposition = Tab.Size() - 1 + Tab.AdditionalCells.size();
+    cellposition = Tab.Size() - 1 + Tab.AdditionalCells.size();
 
-        for (pos=Yc.begin(); pos != Yc.end(); ++pos)
+    for (pos=Yc.begin(); pos != Yc.end(); ++pos)
+    {
+	DoIt = false;
+        row = pos->first;
+        rowcount = pos->second;
+        if (Y.find(row)!=Y.end())
 	{
-		DoIt = false;
-                row = pos->first;
-                rowcount = pos->second;
-                if (Y.find(row)!=Y.end())
-		{
-                        Cellen = Y.find(row)->second;
-                        if ( (rowcount <= MINCOUNT) && (Cellen->size() > 1) )	// Not enough contributors. If only a single cell then no additional restriction needed
-			{
-                                if (Cellen->size() > 2) DoIt = true;		// More than 2 unsafe cells => should apply the trick
-				else		// Exactly 2 unsafe cells => should apply the trick, but take DOSINGLETONS into account
-                                {
-                                        if ((Cellen->at(0).count == 1) || (Cellen->at(1).count == 1))	// At least one singleton
-                                        {
-						if ((Cellen->at(0).count == 1) && (Cellen->at(1).count == 1)) // Two singletons
-							DoIt = !DOSINGLEWITHSINGLE;	// If DOSINGLEWITHSINGLE = true then already dealt with in DoSingletons
-						else					// One singleton and one dominance unsafe cell
-							DoIt = !DOSINGLEWITHMORE;	// If DOSINGLEWITHMORE = true then already dealt with in DoSingletons
-                                        }
-                                }
-			}
+            Cellen = Y.find(row)->second;
+            if ( (rowcount <= MINCOUNT) && (Cellen->size() > 1) )	// Not enough contributors. If only a single cell then no additional restriction needed
+            {
+                if (Cellen->size() > 2) DoIt = true;		// More than 2 unsafe cells => should apply the trick
+		else		// Exactly 2 unsafe cells => should apply the trick, but take DOSINGLETONS into account
+                {
+                    if ((Cellen->at(0).count == 1) || (Cellen->at(1).count == 1))	// At least one singleton
+                    {
+			if ((Cellen->at(0).count == 1) && (Cellen->at(1).count == 1)) // Two singletons
+                            DoIt = !DOSINGLEWITHSINGLE;	// If DOSINGLEWITHSINGLE = true then already dealt with in DoSingletons
+			else					// One singleton and one dominance unsafe cell
+                            DoIt = !DOSINGLEWITHMORE;	// If DOSINGLEWITHMORE = true then already dealt with in DoSingletons
+                        }
+                }
+		//} // Only DoIt possible if (rowcount <= MINCOUNT) && (Cellen->size() > 1)
 					
-			if (DoIt)	// Construct additional "pseudo-cell" and corresponding constraint
-			{
-				cellposition++;
+                if (DoIt)	// Construct additional "pseudo-cell" and corresponding constraint
+                {
+                    cellposition++;
+			
+                    Constraint.rhs = 0.0;
+                    Constraint.ncard = Cellen->size() + 1;
+                    Constraint.Cells = (int*) malloc(Constraint.ncard*sizeof(int));
+                    Constraint.Cells[0] = cellposition;
+                    value = 0;
+                    for (i=0;i<Cellen->size();i++)
+                    {
+                        Cel = Cellen->at(i);
+                        Constraint.Cells[i+1] = Cel.position;
+                        value += Cel.value;		// Total value of "problem"-cells
+                    }
 				
-				Constraint.rhs = 0.0;
-				Constraint.ncard = Cellen->size() + 1;
-				Constraint.Cells = (int*) malloc(Constraint.ncard*sizeof(int));
-				Constraint.Cells[0] = cellposition;
-
-				value = 0;
-                                for (i=0;i<Cellen->size();i++)
-				{
-					Cel = Cellen->at(i);
-					Constraint.Cells[i+1] = Cel.position;
-					value += Cel.value;		// Total value of "problem"-cells
-				}
-				
-				CellInfo.position = cellposition;
-				CellInfo.value = value;
-				CellInfo.weight = 1;
-				CellInfo.status = 'u';
-				CellInfo.lb = (Constraint.ncard - 1)*MINTABVAL;
-				CellInfo.ub = (Constraint.ncard - 1)*MAXTABVAL;
-				CellInfo.lpl = TRICK_LPL;
-				CellInfo.upl = TRICK_UPL;
-				CellInfo.spl = TRICK_SPL;
-				
-				Tab.AdditionalCells.push_back(CellInfo);
-				Tab.AdditionalConstraints.push_back(Constraint);
-			}
-		}
-	}
+                    CellInfo.position = cellposition;
+                    CellInfo.value = value;
+                    CellInfo.weight = 1;
+                    CellInfo.status = 'u';
+                    CellInfo.lb = (Constraint.ncard - 1)*MINTABVAL;
+                    CellInfo.ub = (Constraint.ncard - 1)*MAXTABVAL;
+                    CellInfo.lpl = TRICK_LPL;
+                    CellInfo.upl = TRICK_UPL;
+                    CellInfo.spl = TRICK_SPL;
+			
+                    Tab.AdditionalCells.push_back(CellInfo);
+                    Tab.AdditionalConstraints.push_back(Constraint);
+                }
+            } // ?? Should be here instead on 31 lines earlier ??
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////

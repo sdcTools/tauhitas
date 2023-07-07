@@ -9,7 +9,7 @@ MKDIR           = mkdir
 RM              = rm -f
 CP              = cp -p
 
-32BIT           = true
+32BIT           = true  # is the default
 #32BIT           = false
 
 SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1
@@ -46,19 +46,34 @@ JAVAPACKAGE     = tauargus.extern.tauhitas
 CSPDIR          = ../CSP/$(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 CSPLIBS         = -L$(CSPDIR) -lCSPlibCPLEX -lCSPlibXPRESS -lCSPlibSCIP
 
+# Solvers
+SOLVERS = CP,XP,SC# default is all three
+comma:=,
+null:=
+space:= $(null) #
+USEDSOLVERS = $(subst $(comma), $(space), $(SOLVERS))
+ifeq (,$(SOLVERS)) # if not specified, use defaults
+    USEDSOLVERS = CP XP SC
+endif
+
+# CPLEX
 ifeq ($(32BIT),false)
     CPXDIR      = ../Solvers/Cplex/Cplex125/Windows/64bits
     CPXLIBS     = -L$(CPXDIR) -lcplex125
 else
-    CPXDIR      = ../Solvers/Cplex/Cplex75
-    CPXLIBS     = -L$(CPXDIR)/lib -lcplex75
+#    CPXDIR      = ../Solvers/Cplex/Cplex75
+#    CPXLIBS     = -L$(CPXDIR)/lib -lcplex75
+    CPXDIR      = ../Solvers/Cplex/Cplex122
+    CPXLIBS     = -L$(CPXDIR)/lib -lcplex122
 endif
 CPXINC          = -I$(CPXDIR)/include/ilcplex
 
+#XPRESS
 XPRDIR          = ../Solvers/XPress/XPress_28/$(ARCH)
 XPRINC          = -I$(XPRDIR)
 XPRLIBS         = -L$(XPRDIR) -lxprl -lxprs
 
+#SCIP
 DIRLPS          = ../Solvers/scip-3.1.1
 DIRSOPLEX       = ../Solvers/soplex-2.0.1
 SCIPINC         = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
@@ -68,6 +83,19 @@ SCIPLIB         = scip-3.1.1.mingw.$(ARCH).gnu.opt
 OBJSCIPLIB      = objscip-3.1.1.mingw.$(ARCH).gnu.opt
 LPISPXLIB       = lpispx-3.1.1.mingw.$(ARCH).gnu.opt
 SCIPLIBS        = -L$(DIRLPS)/lib -L$(DIRSOPLEX)/lib -l$(OBJSCIPLIB) -l$(SCIPLIB) -l$(NLPILIB) -l$(LPISPXLIB) -l$(SOPLEXLIB)
+
+ifneq (,$(findstring CP,$(USEDSOLVERS)))
+	SOLVERSINC += $(CPXINC)
+	SOLVERSLIBS += $(CPXLIBS)
+endif
+ifneq (,$(findstring XP,$(USEDSOLVERS)))
+	SOLVERSINC += $(XPRINC)
+	SOLVERSLIBS += $(XPRLIBS)
+endif
+ifneq (,$(findstring SC,$(USEDSOLVERS)))
+	SOLVERSINC += $(SCIPINC)
+	SOLVERSLIBS += $(SCIPLIBS)
+endif
 
 # Object Directory
 OBJECTDIR       = $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)
@@ -86,7 +114,7 @@ OBJECTFILES = \
     $(OBJECTDIR)/src/WrapCSP.o
 
 # Link Libraries and Options
-LDLIBSOPTIONS   = $(CSPLIBS) $(CPXLIBS) $(XPRLIBS) $(SCIPLIBS) $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)/src/Versioninfo.o
+LDLIBSOPTIONS   = $(CSPLIBS) $(SOLVERSLIBS) $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)/src/Versioninfo.o
 # CC Compiler Flags
 SFLAGS          = -c++ -I./src -java -package $(JAVAPACKAGE) -outdir $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 #CXXFLAGS        = -ggdb -DSECBOUNDS $(BITS) -fPIC -malign-double -std=c++11 -Wall
@@ -102,16 +130,16 @@ all:
 
 	$(WINDRES) ./src/Versioninfo.rc $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)/src/Versioninfo.o
 	$(SWIG) $(SFLAGS) -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/ALList.o src/ALList.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMiscFunc.o src/AMiscFunc.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMyLoadProb.o src/AMyLoadProb.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/ATabs.o src/ATabs.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/Adefs.o src/Adefs.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/Ahier.o src/Ahier.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/Amyio.o src/Amyio.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
-	$(CXX) -c $(CXXFLAGS) -Wno-unused-function $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPXINC) $(XPRINC) $(SCIPINC) $(JAVAINC) -o $(OBJECTDIR)/src/WrapCSP.o src/WrapCSP.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/ALList.o src/ALList.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMiscFunc.o src/AMiscFunc.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMyLoadProb.o src/AMyLoadProb.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/ATabs.o src/ATabs.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/Adefs.o src/Adefs.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/Ahier.o src/Ahier.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/Amyio.o src/Amyio.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
+	$(CXX) -c $(CXXFLAGS) -Wno-unused-function $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/WrapCSP.o src/WrapCSP.cpp
 	$(CXX) $(LDFLAGS) -o $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/libtauhitas.$(CND_DLIB_EXT) $(OBJECTFILES) $(LDLIBSOPTIONS) 
 
 # Copy .dll and .java files to tau-argus development directory

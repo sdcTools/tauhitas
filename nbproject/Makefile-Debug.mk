@@ -77,7 +77,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libtauhitas.${CND_DLIB_EXT}: ${OBJECT
 ./src/HiTaSCtrl_wrap.cpp ./src/HiTaSCtrl_wrap.h: hitasctrl.swg
 	${MKDIR} -p ./src ./src
 	@echo Performing Custom Build Step
-	D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
+	D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.2/swig.exe -c++ -I.\src -java -package tauargus.extern.tauhitas -outdir ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM} -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
 
 ${OBJECTDIR}/src/ALList.o: src/ALList.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
