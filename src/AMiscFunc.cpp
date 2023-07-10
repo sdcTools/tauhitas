@@ -21,7 +21,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <vector.h>
+#include <cassert>
 #include "AErrors.h"
 
 #include "resource.h"

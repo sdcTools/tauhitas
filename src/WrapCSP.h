@@ -38,6 +38,7 @@ void   CSPSetIntegerConstant(const char*, const int, int);
 double CSPGetDoubleConstant(const char*, const int);
 int    CSPGetIntegerConstant(const char*, const int);
 
+#ifdef LPCP
 namespace CPLEXv{
 IMPORTFUNC void   CSPSetFileNames(const char*);
 IMPORTFUNC void   CSPFreeFileNames();
@@ -51,7 +52,9 @@ IMPORTFUNC int    CSPfreeprob();
 IMPORTFUNC int    CSPsolution(int*, int*,char*);
 IMPORTFUNC int    CSPrelbounds(int,int*,double*,double*,char);
 }
+#endif
 
+#ifdef LPSC
 namespace SCIPv{
 IMPORTFUNC void   CSPSetFileNames(const char*);
 IMPORTFUNC void   CSPFreeFileNames();
@@ -65,7 +68,9 @@ IMPORTFUNC int    CSPfreeprob();
 IMPORTFUNC int    CSPsolution(int*, int*,char*);
 IMPORTFUNC int    CSPrelbounds(int,int*,double*,double*,char);
 }
+#endif
 
+#ifdef LPXP
 namespace XPRESSv{
 IMPORTFUNC void   CSPSetFileNames(const char*);
 IMPORTFUNC void   CSPFreeFileNames();
@@ -79,6 +84,7 @@ IMPORTFUNC int    CSPfreeprob();
 IMPORTFUNC int    CSPsolution(int*, int*,char*);
 IMPORTFUNC int    CSPrelbounds(int,int*,double*,double*,char);
 }
+#endif
 
 #endif	/* WRAPCSP_H */
 

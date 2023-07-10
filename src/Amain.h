@@ -68,6 +68,7 @@ FILE* LogFile;
 
 std::string LogName;
 
+#ifdef LPCP
 namespace CPLEXv{
 IMPORTFUNC CPXENVptr Env;
 IMPORTFUNC void   CSPSetFileNames(const char*);
@@ -82,7 +83,9 @@ IMPORTFUNC int    CSPfreeprob(void);
 IMPORTFUNC int    CSPsolution(int*, int*,char*);
 IMPORTFUNC int    CSPrelbounds(int,int*,double*,double*,char);
 }
+#endif
 
+#ifdef LPSC
 namespace SCIPv{
 SCIP   *_scip;
 IMPORTFUNC SCIP_LPI **Env;
@@ -98,7 +101,9 @@ IMPORTFUNC int    CSPfreeprob(void);
 IMPORTFUNC int    CSPsolution(int*, int*,char*);
 IMPORTFUNC int    CSPrelbounds(int,int*,double*,double*,char);
 }
+#endif
 
+#ifdef LPXP
 namespace XPRESSv{
 IMPORTFUNC void   CSPSetFileNames(const char*);
 IMPORTFUNC void   CSPFreeFileNames();
@@ -112,5 +117,5 @@ IMPORTFUNC int    CSPfreeprob();
 IMPORTFUNC int    CSPsolution(int*,int*,char*);
 IMPORTFUNC int    CSPrelbounds(int,int*,double*,double*,char);
 }  //namespace SCIPv end
-
+#endif
 #endif

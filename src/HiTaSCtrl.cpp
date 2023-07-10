@@ -15,11 +15,17 @@
 * warranties or conditions of any kind, either express or implied.
 */
 
-#include "cplex.h"
-#include "xprs.h"
-#include <scip/scip.h>
-#include <scip/scipdefplugins.h>
-#include "objscip/objscip.h"
+#ifdef LPCP
+    #include "cplex.h"
+#endif
+#ifdef LPXP
+    #include "xprs.h"
+#endif
+#ifdef LPSC
+    #include <scip/scip.h>
+    #include <scip/scipdefplugins.h>
+    #include "objscip/objscip.h"
+#endif
 #include "HiTaSCtrl.h"
 #include "AErrors.h"
 #include "Amain.h"
@@ -78,14 +84,18 @@ void HiTaSCtrl::FireUpdateTables(int perc)
 
 void HiTaSCtrl::CloseSolver(const char* Solver)
 {
+#ifdef LPXP
     if (strcmp(Solver,"XPRESS")==0)
         XPRSfree();
-
+#endif
+#ifdef LPCP    
     if (strcmp(Solver,"CPLEX")==0)
 	CPXcloseCPLEX(&CPLEXv::Env);
-                
+#endif
+#ifdef LPSC    
     if (strcmp(Solver,"SCIP")==0)
         SCIPfree(&SCIPv::_scip);
+#endif
 }
 
 // Check for license (if necessary) and start solver
@@ -100,7 +110,8 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
     fprintf(logfile,"Using %s\n", Solver);
     
     fclose(logfile);
-        
+
+#ifdef LPCP        
     if (strcmp(Solver,"CPLEX")==0)
     {
         if ((strcmp(ILMFile,"")!=0) && (ILMFile != NULL))
@@ -125,7 +136,8 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         fclose(logfile);
         KnownSolver = true;
     }
-    
+#endif
+#ifdef LPXP    
     if (strcmp(Solver,"XPRESS")==0)
     {
         int ierr;
@@ -155,7 +167,8 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         fclose(logfile);
         KnownSolver = true;        
     }
-    
+#endif
+#ifdef LPSC    
     if (strcmp(Solver,"SCIP")==0) 
     {
         SCIPcreate(&SCIPv::_scip);
@@ -166,7 +179,7 @@ long HiTaSCtrl::CheckStart(const char* Solver, const char* ILMFile)
         fclose(logfile);
         KnownSolver = true;        
     }
-    
+#endif    
     if (KnownSolver)
     {
         char buffer[256];
