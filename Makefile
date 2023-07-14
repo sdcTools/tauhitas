@@ -51,8 +51,7 @@ CSPDIR          = ../CSP/$(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 CSPLIBS         = -L$(CSPDIR)
 
 # Solvers
-#SOLVERS = CP,XP,SC# default is all three
-SOLVERS = CP# default is all three
+SOLVERS = CP,XP,SC# default is all three
 comma:=,
 null:=
 space:= $(null) #
