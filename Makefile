@@ -1,6 +1,10 @@
 ######################################################################################
 # Makefile for building: TauHiTaS
 # use "make 32BIT=true" to compile for 32 bit system
+# use "make SOLVERS=foo" to compile only for selected LP-solves
+#	    where foo is a comma separated list
+#	    Allowed solvers: CP=Cplex, XP=Xpress, SC=SCIP
+#	    So e.g., "make SOLVERS=CP,SC" would only compile for Cplex and SCIP
 ######################################################################################
 ####### Compiler, tools and options
 # Environment
@@ -12,19 +16,19 @@ CP              = cp -p
 32BIT           = true  # is the default
 #32BIT           = false
 
-SWIGDIR         = C:/swigwin-4.0.1
+SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1
 
 ifeq ($(32BIT), false)  # 64 bit assumed
     BITS        = -m64 -D_LP64
     ARCH        = x86_64
     CND_PLATFORM= MinGW-Windows64
-    JAVADIR     = ../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_x64
+    JAVADIR     = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_x64
     GNUDIR      = C:/Progra~1/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin
 else                    # 32 bit assumed
     BITS        = -m32
     ARCH        = x86
     CND_PLATFORM= MinGW-Windows
-    JAVADIR     = ../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_i686
+    JAVADIR     = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_i686
     GNUDIR      = C:/Progra~2/mingw-w64/i686-8.1.0-win32-sjlj-rt_v6-rev0/mingw32/bin
 endif
 
@@ -44,10 +48,11 @@ LIBNAME         = TauHitas
 JAVAPACKAGE     = tauargus.extern.tauhitas
 
 CSPDIR          = ../CSP/$(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
-CSPLIBS         = -L$(CSPDIR) -lCSPlibCPLEX -lCSPlibXPRESS -lCSPlibSCIP
+CSPLIBS         = -L$(CSPDIR)
 
 # Solvers
-SOLVERS = CP,XP,SC# default is all three
+#SOLVERS = CP,XP,SC# default is all three
+SOLVERS = CP# default is all three
 comma:=,
 null:=
 space:= $(null) #
@@ -85,16 +90,19 @@ LPISPXLIB       = lpispx-3.1.1.mingw.$(ARCH).gnu.opt
 SCIPLIBS        = -L$(DIRLPS)/lib -L$(DIRSOPLEX)/lib -l$(OBJSCIPLIB) -l$(SCIPLIB) -l$(NLPILIB) -l$(LPISPXLIB) -l$(SOPLEXLIB)
 
 ifneq (,$(findstring CP,$(USEDSOLVERS)))
+	CSPLIBS += -lCSPlibCPLEX
 	SOLVERSINC += $(CPXINC)
 	SOLVERSLIBS += $(CPXLIBS)
 	ADDCXX += -DLPCP
 endif
 ifneq (,$(findstring XP,$(USEDSOLVERS)))
+	CSPLIBS += -lCSPlibXPRESS
 	SOLVERSINC += $(XPRINC)
 	SOLVERSLIBS += $(XPRLIBS)
 	ADDCXX += -DLPXP
 endif
 ifneq (,$(findstring SC,$(USEDSOLVERS)))
+	CSPLIBS += -lCSPlibSCIP
 	SOLVERSINC += $(SCIPINC)
 	SOLVERSLIBS += $(SCIPLIBS)
 	ADDCXX += -DLPSC
