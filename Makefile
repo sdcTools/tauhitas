@@ -1,11 +1,12 @@
 ######################################################################################
 # Makefile for building: TauHiTaS
 # use "make 32BIT=true" to compile for 32 bit system
-# use "make SOLVERS=foo" to compile only for selected LP-solves
+# use "make SOLVER=foo" to compile only for selected LP-solves
 #	    where foo is a comma separated list
 #	    Allowed solvers: CP=Cplex, XP=Xpress, SC=SCIP
-#	    So e.g., "make SOLVERS=CP,SC" would only compile for Cplex and SCIP
+#	    So e.g., "make SOLVER=CP,SC" would only compile for Cplex and SCIP
 ######################################################################################
+
 ####### Compiler, tools and options
 # Environment
 
@@ -51,13 +52,14 @@ CSPDIR          = ../CSP/$(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 CSPLIBS         = -L$(CSPDIR)
 
 # Solvers
-SOLVERS = CP,XP,SC# default is all three
+SOLVER = CP,XP,SC# default is all three
 comma:=,
 null:=
 space:= $(null) #
-USEDSOLVERS = $(subst $(comma), $(space), $(SOLVERS))
-ifeq (,$(SOLVERS)) # if not specified, use defaults
+ifeq (,$(SOLVER)) # if not specified, use defaults
     USEDSOLVERS = CP XP SC
+else
+    USEDSOLVERS = $(subst $(comma), $(space), $(SOLVER))
 endif
 
 # CPLEX
@@ -73,7 +75,8 @@ endif
 CPXINC          = -I$(CPXDIR)/include/ilcplex
 
 #XPRESS
-XPRDIR          = ../Solvers/XPress/XPress_28/$(ARCH)
+#XPRDIR          = ../Solvers/XPress/XPress_28/$(ARCH)
+XPRDIR          = ../Solvers/XPress/XPress_19
 XPRINC          = -I$(XPRDIR)
 XPRLIBS         = -L$(XPRDIR) -lxprl -lxprs
 
