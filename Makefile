@@ -17,7 +17,7 @@ CP              = cp -p
 32BIT           = true  # is the default
 #32BIT           = false
 
-SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.1
+SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.2
 
 ifeq ($(32BIT), false)  # 64 bit assumed
     BITS        = -m64 -D_LP64
@@ -69,8 +69,8 @@ ifeq ($(32BIT),false)
 else
 #    CPXDIR      = ../Solvers/Cplex/Cplex75
 #    CPXLIBS     = -L$(CPXDIR)/lib -lcplex75
-    CPXDIR      = ../Solvers/Cplex/Cplex122
-    CPXLIBS     = -L$(CPXDIR)/lib -lcplex122
+    CPXDIR      = ../Solvers/Cplex/Cplex125/Windows/32bits
+    CPXLIBS     = -L$(CPXDIR) -lcplex125
 endif
 CPXINC          = -I$(CPXDIR)/include/ilcplex
 
@@ -95,7 +95,7 @@ ifneq (,$(findstring CP,$(USEDSOLVERS)))
 	CSPLIBS += -lCSPlibCPLEX
 	SOLVERSINC += $(CPXINC)
 	SOLVERSLIBS += $(CPXLIBS)
-	ADDCXX += -DLPCP
+	ADDCXX += -DLPCP -DBUILD_CPXSTATIC
 endif
 ifneq (,$(findstring XP,$(USEDSOLVERS)))
 	CSPLIBS += -lCSPlibXPRESS
