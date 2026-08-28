@@ -227,7 +227,7 @@ void Table::APrintTabel(FILE& uitfile, const char* States)
 		  for (j=1;j<=dim;j++)
                       //fprintf(&uitfile,"%4d ",coords[j]);
                       fprintf(&uitfile,"%4d ",coords[j-1]);
-                  fprintf(&uitfile,"%4d\n",k);
+                fprintf(&uitfile, "%4d %c\n", k, body[i][k].status);
 		}
 	}
     }
@@ -235,6 +235,32 @@ void Table::APrintTabel(FILE& uitfile, const char* States)
   //coords.Free();
 }
 
+void Table::Overwritefrozenstatus(){
+  int i,k;
+  //Vector<int> coords;
+  std::vector<int> coords;
+  int dim = subdims.size()-1;
+  //coords.Make(dim);
+  coords.resize(dim,1);
+  for (i=0; i<size;i++)
+  {
+    if (body[i] != NULL)
+    {
+        Getijk(i,coords);
+        //for (k=0;k<=subdims[subdims.size()]-1;k++)
+        for (k=0;k<subdims[subdims.size()-1];k++)
+	{
+            printf("Status in C++: %c\n", body[i][k].status); fflush(stdout);
+            if ((body[i][k].status) == 'f')
+            {
+                body[i][k].status ='m';
+                printf("test\n");
+                fflush(stdout);
+		    }
+	}
+    }
+  }
+}
 
 void Table::PrintStatusCells(const char* States, InExCodeLijst& TerugLijst, FILE& out)
 {

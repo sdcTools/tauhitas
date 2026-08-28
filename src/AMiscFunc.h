@@ -55,10 +55,12 @@ typedef std::map< std::string, int> TotCountInfo;
 //int FillTable(JJTable& Tab, Vector< Vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost);  // PWOF-23-02-2009 Changed MaxCost from int to double
 int FillTable(JJTable& Tab, std::vector< std::vector<int> > SGTab, Table& BTab, std::vector<double>& bounds, bool DoCosts, double& MaxCost);  // PWOF-23-02-2009 Changed MaxCost from int to double
 int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& MaxCost, int Hierarch,  int &ObjVal);
+int Suppress_FCP(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& MaxCost, int Hierarch,  int &ObjVal);
 int Update(Table& BTab, JJTable& Tab, int RetCode, std::vector<double>& bounds);
 
 int TestNewTable(std::string& TableList, JJTable& Tab, Table& BTab);
 int ReadOldStats(std::string TableList, JJTable& Tab);
+bool Getijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims);
 
 double MyRound(double x, int dec);
 double seconds();

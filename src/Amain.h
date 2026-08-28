@@ -23,7 +23,7 @@
 #include <map>
 #include "WrapCSP.h"
 
-double MAX_TIME;
+extern double MAX_TIME;
 extern double ZERO;
 extern double ZERO_1;
 extern double ZERO_2;

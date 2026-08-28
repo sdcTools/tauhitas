@@ -34,6 +34,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <cstdio>
+#include <stdio.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
     #define IMPORTFUNC __declspec(dllimport)
@@ -45,10 +46,24 @@ IMPORTFUNC int CSPdefinestoptime(int (*)(void));
 StringTable ErrorStrings;
 
 ICallback* m_Callback = NULL;
+double MAX_TIME;
 
 int MyStopTime()
 {
     return m_Callback->SetStopTime();
+}
+
+int GetFCPMode() {
+    FILE* fcpFile = fopen("fcp_variant.txt", "r");
+    if (fcpFile) {
+        int mode = 0;
+        if (fscanf(fcpFile, "%d", &mode) == 1) {
+            fclose(fcpFile);
+            return mode;
+        }
+        fclose(fcpFile);
+    }
+    return -1; 
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1090,9 +1105,336 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
 
                         //realdim = FillTable(Tab, SubGTabs[j], BTab, MaxBounds, DISTANCE==0, MaxCost);
                         realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);
-
-                        if (PPDEBUG) LogPrintf(LogName,".");
-
+                          //code for FrozenCell Approach
+//                        bool checkFCP = true;
+//                        while(checkFCP){                            
+//                            int JJgroesse = Tab.Size(); //number of cells in JJTable                          
+//                            //Check if the subtable contains a cell with status 'f' already. 
+//                            bool containsf = false;
+//                            for(int k=0;k<JJgroesse;k++){//iterate over all cells in the Basetable that are included in this instance of JJ Table
+//                                if((BTab[Tab.baseijk[k]]->status)=='f'){
+//                                    containsf =true;break;//if any cell has status 'f' stop and jump out of for loop
+//                                }
+//                            }
+//                                                                                                
+//                            if(containsf){//give all interior cells status 'f', since it is a decendant subtable of a FCP table.
+//                                        LogPrintf(LogName,"this table contains cells with status 'f' ==>  set all interior cells to status 'f' \n");
+//                                        printf("There are cells with status f \n");//set all protected cells to safe and give them high cost
+//                                        //Debug:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"check how original JJ Table looks like:\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        //
+//                                    //a good way to find out if a cell is an interior cell:
+//                                    int dims = Tab.Dim();
+//                                    std::vector<int> Gijk;
+//                                    Gijk.resize(dims);
+//                                    std::vector<int> Divs;		     
+//                                    Divs.resize(dims);
+//                                    for (tel=1;tel<dims;tel++){       
+//                                        Divs[tel-1] = Tab.N[dims-tel];
+//                                    }
+//                                    Divs[dims-1]=1;
+//                                    for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+//                                        if (Getijk(v,Gijk,Divs)){//is a marginal cell, i.e. Getijk() returns true
+//                                            //BTab[Tab.baseijk[v]]->status ='f';//in the Basetable
+//                                            printf("marginal cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                            printf("with status %c\n", BTab[Tab.baseijk[v]]->status);                                        
+//                                        }else{//is an interior cell ==> give status 'f'
+//                                            BTab[Tab.baseijk[v]]->status ='f';//in the Basetable                                           
+//                                            printf("interior cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                            printf("with status %c\n", BTab[Tab.baseijk[v]]->status);
+//                                        }
+//                                    }
+//                                    realdim = -12;
+//                                    printf("Containsf was true \n");
+//                                    checkFCP =false;//give back to normal HiTaS routine, with the 'f' status in the Basetable.                                 
+//                                } 
+//                            
+//                            //does not contain an 'f' cell (yet)                           
+//                            if(!containsf){                               
+//                                bool containsp=false;
+//                                for(int v=0;v<JJgroesse;v++){//iterate over all cells in the Basetable that are included in this instance of JJTable
+//                                    if((BTab[Tab.baseijk[v]]->status)=='z'){// check for protected cells (status ='z')
+//                                                                            //What about zeros here?
+//                                    containsp =true;break;
+//                                    }
+//                                }
+//                                if(!containsp){
+//                                    //normal table (shall not be infeasible, if it is, there is something wrong with the table anyways), since no 'f' and no 'z' status appear ==> give back to HiTaS routine
+//                                    printf("Give back to normal HiTaS routine");// give back the orginal JJ Table to the HiTaS routine. ==> nothing further to do
+//                                    checkFCP =false;
+//                                    //for debugging print JJ table that goes back to HiTaS routine into BTTabs.dat:
+//                                    BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                    fprintf(BTUit,"\n");
+//                                    fprintf(BTUit,"This JJ table goes back to HiTaS routine:\n");
+//                                    Tab.PrintData(*BTUit);
+//                                    fprintf(BTUit,"\n");
+//                                    fclose(BTUit);
+//                                    //
+//                                }
+//                                if(containsp){
+//                                        printf("There are protected cells \n");//set all protected cells to safe and give them high cost
+//                                        LogPrintf(LogName,"this table contains protected cells ==> check for FCP by solving (Unfrozen) \n");
+//                                        //Debug:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"check how original JJ Table looks like:\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        //
+//                                        //save which cells are protected before overwriting
+//                                        std::vector<int> CellsProtected;
+//                                        CellsProtected.assign(JJgroesse,0);
+//                                        for(int v=0;v<JJgroesse;v++){
+//                                            if((BTab[Tab.baseijk[v]]->status=='z')&&(BTab[Tab.baseijk[v]]->value != 0)){
+//                                                CellsProtected[v]=1;
+//                                            }                                            
+//                                        }                                       
+//                                    for(int v=0;v<JJgroesse;v++){//iterate over all cells in the Basetable that are included in this instance of JJTable                                      
+//                                        if((BTab[Tab.baseijk[v]]->status=='z')&&(BTab[Tab.baseijk[v]]->value != 0)){//zero cells should stay "protected" ==> so take all protected non-zeros
+//                                                //for protected cells: set to safe and give high enough costs                           
+//                                                Tab.status[v] = 's';                                                
+//                                                Tab.costs[v] = JJgroesse;
+//                                                Tab.weight[v] = JJgroesse;
+//                                                //for debugging print in console:
+//                                                printf("(originally) protected cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                                printf("with status %c\n", Tab.status[v]);
+//                                                printf("with cell cost =%f\n",Tab.costs[v]);
+//                                                printf("weight=%d\n",Tab.weight[v]);
+//                                                printf("lpl=%f\n",Tab.lpl[v]);
+//                                                printf("upl=%f\n",Tab.upl[v]);
+//                                                
+//                                        }else{
+//                                            Tab.costs[v] = 1;
+//                                            Tab.weight[v] = 1;
+//                                            //for debugging print in console:                                          
+//                                            printf("cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                            printf("with status %c\n", Tab.status[v]);
+//                                            printf("with cell cost =%f\n",Tab.costs[v]);
+//                                            printf("weight=%d\n",Tab.weight[v]);
+//                                            printf("lpl=%f\n",Tab.lpl[v]);
+//                                            printf("upl=%f\n",Tab.upl[v]);
+//                                        }
+//                                    }
+//                                    //Debug:
+//                                    BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                    fprintf(BTUit,"\n");
+//                                    fprintf(BTUit,"check how JJ Table looks like before optimization:\n");
+//                                    Tab.PrintData(*BTUit);
+//                                    fprintf(BTUit,"\n");
+//                                    fclose(BTUit);
+//                                    //
+//                                    //give "unfrozen" problem (Unfrozen) to JJ Routines: 
+//                                    ReturnCode = Suppress_FCP(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal);
+//                                    printf("ReturnCode is: %i\n", ReturnCode);
+//                                    if (ReturnCode ==1){
+//                                        checkFCP =false;                                      
+//                                    }
+//                                    //for debugging print suppressed table into BTTabs.dat:
+//                                    BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                    fprintf(BTUit,"\n");
+//                                    fprintf(BTUit,"Solution to unfrozen problem (Unfrozen):\n");
+//                                    Tab.PrintData(*BTUit);
+//                                    fprintf(BTUit,"\n");
+//                                    fclose(BTUit);
+//                                    //save which cells are suppressed (status == 'm')
+//                                    std::vector<int> CellsSuppressed;
+//                                    CellsSuppressed.assign(JJgroesse,0);
+//                                    for(int v=0;v<JJgroesse;v++){
+//                                        if((Tab.status[v] =='m')){
+//                                            CellsSuppressed[v]=1;
+//                                        }                                            
+//                                    }
+//                                    //check if any originally protected cells are now suppressed (status == 'm'):
+//                                    bool protectedsuppressed;
+//                                    protectedsuppressed =false;
+//                                    for(int v=0;v<JJgroesse;v++){
+//                                        if ((CellsProtected[v] == 1)&& (CellsSuppressed[v]==1)){// TRUE <==> cell v of JJ Table was protected and is now a secondary suppression
+//                                            protectedsuppressed =true;
+//                                            break;
+//                                        }
+//                                    }
+//                                    if(!protectedsuppressed){
+//                                    //None of the originally protected cells got suppressed.
+//                                    //give the subtable back to normal HiTaS routine
+//                                    printf("Give back to normal HiTaS routine");//TODO:Give HiTaS the "correct" JJ Table.
+//                                    LogPrintf(LogName,"None of the originally protected cells got suppressed ==> No FCP \n");
+//                                    realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form                                                                               
+//                                    //for debugging print JJ table that goes back to HiTaS routine into BTTabs.dat:
+//                                    BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                    fprintf(BTUit,"\n");
+//                                    fprintf(BTUit,"This JJ table goes back to HiTaS routine:\n");
+//                                    Tab.PrintData(*BTUit);
+//                                    fprintf(BTUit,"\n");
+//                                    fclose(BTUit);
+//                                    //
+//                                    checkFCP =false;
+//                                    }
+//                                    //At least one originally protected cell got suppressed.
+//                                    //We assume, that by setting upl,lpl to minimal value the infeasibility problem in the original problem (Minpl) can be solved
+//                                    if (protectedsuppressed){                                                                                              
+//                                        LogPrintf(LogName,"(formerly) protected cells got suppressed in (Unfrozen) ==> check again for FCP by solving (Minpl) \n");                                      
+//                                        realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form
+//                                        
+//                                        //for debugging print suppressed table into BTTabs.dat:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"check if JJ Table is really set back to original version:\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        
+//                                        for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+//                                            if(Tab.upl[v] !=0){//give all primary unsafe cells minimal upl and lpl value. "Tab.upl[v] !=0" ==> upper bound not 0, so its a primary unsafe cell.
+//                                                Tab.upl[v]=1.000;//has to be the smallest possible value > "0", for now its 1.0...
+//                                                Tab.lpl[v]=1.000;
+//                                            }
+//                                            if((BTab[Tab.baseijk[v]]->status=='z')&&(BTab[Tab.baseijk[v]]->value != 0)){//zero cells should stay "protected", so take all protected non-zeros
+//                                                //for protected cells: set to safe and give high costs:                            
+//                                                Tab.status[v] = 's';                                             
+//                                                Tab.costs[v] = JJgroesse;
+//                                                Tab.weight[v] = JJgroesse;
+//                                                printf("cell =%f\n", Tab.data[v]);
+//                                                printf("with status %c\n", Tab.status[v]);
+//                                                printf("with cell cost =%f\n",Tab.costs[v]);
+//                                                printf(" weight=%d\n",Tab.weight[v]);
+//                                                printf(" lpl=%f\n",Tab.lpl[v]);
+//                                                printf(" upl=%f\n",Tab.upl[v]);
+//                                            }else{
+//                                                Tab.costs[v] = 1;
+//                                                Tab.weight[v] = 1;
+//                                            //for debugging print in console:
+//                                                printf("cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                                printf("with status %c\n", Tab.status[v]);
+//                                                printf("with cell cost =%f\n",Tab.costs[v]);
+//                                                printf("weight=%d\n",Tab.weight[v]);
+//                                                printf("lpl=%f\n",Tab.lpl[v]);
+//                                                printf("upl=%f\n",Tab.upl[v]);
+//                                            }
+//                                        }
+//                                        //solve the problem with adjusted protection levels (Minpl):
+//                                        //Debug:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"check how JJ Table looks like before optimization:\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        //
+//                                        ReturnCode = Suppress_FCP(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal); 
+//                                        printf("ReturnCode is: %i\n", ReturnCode);
+//                                        //for debugging print suppressed table into BTTabs.dat:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"Solution to problem with adjusted protection levels (Minpl):\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        //check again if any originally protected cells are now suppressed (status == 'm'): 
+//                                        CellsSuppressed.assign(JJgroesse,0);//Set CellsSuppressed vector back to all 0s, since JJ Table changed after solving (Minpl)
+//                                        for(int v=0;v<JJgroesse;v++){
+//                                            if((Tab.status[v] =='m')){
+//                                                CellsSuppressed[v]=1;
+//                                            }                                            
+//                                        }
+//                                        //debugging:
+//                                        for(int i=0;i<JJgroesse;i++){
+//                                            printf("CellsSuppressed %i\n",CellsSuppressed[i]);
+//                                        }
+//                                        //check if any originally protected cells are now suppressed (status == 'm'):                                   
+//                                        protectedsuppressed =false;//set back to false, could be true from previous use
+//                                        for(int v=0;v<JJgroesse;v++){
+//                                            if ((CellsProtected[v] == 1)&& (CellsSuppressed[v]==1)){// TRUE <==> cell v of JJ Table was protected and is now a secondary suppression
+//                                                protectedsuppressed =true;
+//                                                break;
+//                                            }
+//                                        }
+//                                        if(!protectedsuppressed){//None of the originally protected cells got suppressed. That means, that the Optimization problem with the 
+//                                                                  //originally protected cells is solvable.
+//                                             LogPrintf(LogName,"None of the originally protected cells got suppressed ==> No FCP \n");
+//                                             printf("Give back to normal HiTaS routine"); //In that case the JJ Table with all (non-zero) protection levels set to a minimum number. 
+//                                            realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form
+//                                            
+//                                            for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+//                                                if(Tab.upl[v] !=0){//give all primary unsafe cells minimal upl and lpl value. "Tab.upl[v] !=0" ==> upper bound not 0, so its a primary unsafe cell.
+//                                                    Tab.upl[v]=1.000;//has to be the smallest possible value > "0", for now its 1.0...
+//                                                    Tab.lpl[v]=1.000;
+//                                                }
+//                                            }
+//                                        //for debugging print JJ table that goes back to HiTaS routine into BTTabs.dat:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"This JJ table goes back to HiTaS routine:\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        //
+//                                        checkFCP =false;
+//                                        }                                        
+//                                        if(protectedsuppressed){
+//                                        LogPrintf(LogName,"this table induces infeasibility due to FCP  ==> set all interior cells to status 'f' \n");
+//                                        //give status 'f' to all interior cells.
+//                                        //a good way to find out if a cell is an interior cell:             
+//                                        int dims = Tab.Dim();
+//                                        std::vector<int> Gijk;
+//                                        Gijk.resize(dims);
+//                                        std::vector<int> Divs;		     
+//                                        Divs.resize(dims);
+//                                            for (tel=1;tel<dims;tel++){       
+//                                                Divs[tel-1] = Tab.N[dims-tel];
+//                                            }
+//                                        Divs[dims-1]=1;
+//                                            for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+//                                                if (Getijk(v,Gijk,Divs)){//is a marginal cell of the JJ table ==> change nothing
+//                                                    //for debugging print:
+//                                                    printf("marginal cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                                    printf("with status %c\n", BTab[Tab.baseijk[v]]->status);                                        
+//                                                }else{//interior cell ==> give status 'f'
+//                                                    BTab[Tab.baseijk[v]]->status ='f';//in the Basetable 
+//                                                    //for debugging print:
+//                                                    printf("interior cell =%f\n", BTab[Tab.baseijk[v]]->value);
+//                                                    printf("with status %c\n", BTab[Tab.baseijk[v]]->status);
+//                                                }
+//                                            }
+//                                        BTab.PrintData();
+//                                        realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form
+//                                        BTab.PrintData();
+//                                        //for debugging print suppressed table into BTTabs.dat:
+//                                        BTUit = OpenFile(BTTabsName.c_str(),"a");
+//                                        fprintf(BTUit,"\n");
+//                                        fprintf(BTUit,"check if in JJ Table the status 'f' appears:\n");
+//                                        Tab.PrintData(*BTUit);
+//                                        fprintf(BTUit,"\n");
+//                                        fclose(BTUit);
+//                                        //
+//                                        realdim = -12;
+//                                        checkFCP =false;//give back to normal HiTaS routine, with the 'f' status in the Basetable. TODO: Test what happens with that
+//                                        }                                 
+//                                    }                                    
+//                                }                                                             
+//                            }
+//                        }//end for while(checkFCP){} 
+//                        
+                       if (PPDEBUG) LogPrintf(LogName,".");
+                       
+                       if (realdim == -12)    // Table is to be skipped due to frozen cell problem, make a note about that in LogFile
+                       {
+                           ReturnCode = -12;  // Give ReturnCode a temporary nonsense value
+                           if (PPDEBUG)
+                               LogPrintf(LogName,"Skipped Table due to frozen cell problem \n");
+                           else
+                           {
+                               LogPrintf(LogName,"Skipped table in subgroup (");
+                               LogPrintf(LogName,TmpTableName.c_str());
+                               LogPrintf(LogName,") due to frozen cell problem \n");
+                           }
+                       }
+                        
                         if (realdim == -11)    // Table is to be skipped, make a note about that in LogFile
                         {
                             ReturnCode = -11;  // Give ReturnCode a temporary nonsense value
@@ -1111,26 +1453,31 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                             char VolgNr[10]; // i.e., up to 999999999 subtables possible
                             //_itoa(j,VolgNr,10);
                             snprintf(VolgNr,10,"%d",(int) j); // snprintf is safer than sprintf
-                            TableName = TmpTableName + '.' + VolgNr;
-                                                
+                            TableName = TmpTableName + '.' + VolgNr;                                       
                             if (ListsOfTables.find(TableName) == ListsOfTables.end()) // Not found
                             {
                                 ListsOfTables[TableName]=""; // New table entry
                                 TableList.clear();           // No statuses known yet
                             }
-                            else
-                                TableList = ListsOfTables[TableName];
-
+                            else{
+                                TableList = ListsOfTables[TableName];                                
+                            }
                             // Check whether table is new (first time or different from previous run due to backtracking))
-                            newtab = TestNewTable(TableList,Tab,BTab); 
-
+                            newtab = TestNewTable(TableList,Tab,BTab);
+                            //define bool variable for checking for FCPs. Whenever this is done give back to "normal" HiTaS routine, i.e. do the actual Suppress() of the subtable
+                            //bool checkFCP = true;
+                            //define bool if normal Suppress() shall be called after checking for FCPs
+                            bool normalsuppress = true; 
+                            bool containsporf=false;
+                            int JJgroesse = Tab.Size(); //number of cells in JJTable 
                             switch (newtab)
                             {
                                 case OLD_TAB:  // Read old results
                                     ReturnCode = ReadOldStats(TableList,Tab);
-                                    Update(BTab, Tab, ReturnCode, MaxBounds); // Update suppressions in BTab
+                                    Update(BTab, Tab, ReturnCode, MaxBounds); // Update suppressions in BTab                                   
                                     break;
                                 case NEW_TAB:
+                                {
                                     PPDEBUG ? JJUit=OpenFile(OutName.c_str(),"a") : JJUit=OpenFile(OutName.c_str(),"w");
 
                                     for (unsigned int uk=0;uk<SubGs[i]->Gname.size();uk++)
@@ -1138,30 +1485,196 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                                                                 
                                     fprintf(JJUit,"\n");
                                     fclose(JJUit);
-                        
-                                    Tab.SaveBasisStatsBefore(TableList,BTab); // Save statuses of table before JJ
-                                    try                                       // Apply protection (JJ)
-                                    {
-                                        /*if (DISTANCE!=0) 
-                                            ReturnCode = Suppress(Solver,Tab,realdim,false,MaxCost,Hierarchical,ObjVal);
-                                        else
-                                            ReturnCode = Suppress(Solver,Tab,realdim,true,MaxCost,Hierarchical,ObjVal);*/
-                                        ReturnCode = Suppress(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal);
-                                    }
-                                    catch(int code)
-                                    {
-                                        WriteErrorToLog(LogName,code);
-                                        CloseSolver(Solver);
-                                        return(code);
-                                    }
+                                    //insert FCP code here and change accordingly
+                                    
+                                    // NEU: Abfrage des FCP-Modus (-1 = AUS, 0 = ALLE, 1 = NUR SAFE)
+                                    int fcpMode = GetFCPMode();
 
-                                    JJTotalTime += JJTime;
-		       
-                                    Update(BTab, Tab, ReturnCode, MaxBounds); // Update suppressions in BTab
-		       
+                                    if (fcpMode != -1) {
+                                        for(int v=0;v<JJgroesse;v++){//iterate over all cells in the Basetable that are included in this instance of JJTable
+                                            // check for protected cells (status ='z') or frozen cells (status ='f')
+                                            if(((BTab[Tab.baseijk[v]]->status)=='z'&&(BTab[Tab.baseijk[v]]->CelCount) != 0)||(BTab[Tab.baseijk[v]]->status)=='f'){                         
+                                                containsporf =true;break;
+                                            }
+                                        }
+                                        if(containsporf){
+                                            //Check if the subtable contains a cell with status 'f' already. 
+                                            bool containsf = false;
+                                            for(int k=0;k<JJgroesse;k++){//iterate over all cells in the Basetable that are included in this instance of JJ Table
+                                                if((BTab[Tab.baseijk[k]]->status)=='f'){
+                                                containsf =true;break;//if any cell has status 'f' stop and jump out of for loop
+                                                }
+                                            }
+
+                                            if(containsf){//give all interior cells status 'f', since it is a decendant subtable of a FCP table.
+                                                int dims = Tab.Dim();
+                                                std::vector<int> Gijk;
+                                                Gijk.resize(dims);
+                                                std::vector<int> Divs;           
+                                                Divs.resize(dims);
+                                                for (tel=1;tel<dims;tel++){       
+                                                    Divs[tel-1] = Tab.N[dims-tel];
+                                                }
+                                                Divs[dims-1]=1;
+                                                //iterate over all cells in JJTable
+                                                for(int v=0;v<JJgroesse;v++){
+                                                    //is a marginal cell, i.e. Getijk() returns true
+                                                    if (Getijk(v,Gijk,Divs)){//do nothing                                                                                                                       
+                                                    }else{//is an interior cell ==> give status 'f'
+                                                    BTab[Tab.baseijk[v]]->status ='f';//change status in the Basetable                                                                
+                                                    }
+                                                }
+                                                ReturnCode = 0;
+                                                normalsuppress = false;
+                                            }
+                                            if(!containsf){                               
+                                                bool containsp=false;
+                                                for(int v=0;v<JJgroesse;v++){//iterate over all cells in the Basetable that are included in this instance of JJTable
+                                                    if((BTab[Tab.baseijk[v]]->status)=='z'&&(BTab[Tab.baseijk[v]]->value != 0)){// check for protected cells (status ='z')                         
+                                                        containsp =true;break;
+                                                    }
+                                                }
+                                                if(!containsp){ //normal table (shall not be infeasible, if it is, there is something wrong with the table anyways), since no 'f' and no 'z' status appear ==> give back to HiTaS routine                                             
+                                                }
+                                                if(containsp){
+                                                    std::vector<int> CellsProtected;
+                                                    CellsProtected.assign(JJgroesse,0);
+                                                    for(int v=0;v<JJgroesse;v++){
+                                                        if((BTab[Tab.baseijk[v]]->status=='z')&&(BTab[Tab.baseijk[v]]->value != 0)){
+                                                            CellsProtected[v]=1;
+                                                        }                                            
+                                                    }                                       
+                                                    for(int v=0;v<JJgroesse;v++){//iterate over all cells in the Basetable that are included in this instance of JJTable                                      
+                                                        if((BTab[Tab.baseijk[v]]->status=='z')&&(BTab[Tab.baseijk[v]]->value != 0)){//zero cells should stay "protected" ==> so take all protected non-zeros
+                                                            Tab.status[v] = 's';                                                
+                                                            Tab.costs[v] = JJgroesse;
+                                                            Tab.weight[v] = JJgroesse;
+                                                        }else{
+                                                            Tab.costs[v] = 1;
+                                                            Tab.weight[v] = 1;                                           
+                                                        }
+                                                    }                                              
+                                                    //give "unfrozen" problem (Unfrozen) to JJ Routines: 
+                                                    ReturnCode = Suppress_FCP(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal);
+                                                                                                                                                                      
+                                                    //save which cells are suppressed (status == 'm')
+                                                    std::vector<int> CellsSuppressed;
+                                                    CellsSuppressed.assign(JJgroesse,0);
+                                                    for(int v=0;v<JJgroesse;v++){
+                                                        if((Tab.status[v] =='m')){
+                                                            CellsSuppressed[v]=1;
+                                                        }                                            
+                                                    }
+                                                    //check if any originally protected cells are now suppressed (status == 'm'):
+                                                    bool protectedsuppressed;
+                                                    protectedsuppressed =false;
+                                                    for(int v=0;v<JJgroesse;v++){
+                                                        if ((CellsProtected[v] == 1)&& (CellsSuppressed[v]==1)){// TRUE <==> cell v of JJ Table was protected and is now a secondary suppression
+                                                            protectedsuppressed =true;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if(!protectedsuppressed){
+                                                        realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form                                                                                                         
+                                                    }
+                                                    if (protectedsuppressed){                                                                                                                                                                      
+                                                        realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form
+                                                        for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+                                                            if(Tab.upl[v] !=0){//give all primary unsafe cells minimal upl and lpl value. "Tab.upl[v] !=0" ==> upper bound not 0, so its a primary unsafe cell.
+                                                                Tab.upl[v]=1.000;//has to be the smallest possible value > "0", for now its 1.0...
+                                                                Tab.lpl[v]=1.000;
+                                                            }
+                                                            if((BTab[Tab.baseijk[v]]->status=='z')&&(BTab[Tab.baseijk[v]]->value != 0)){//zero cells should stay "protected", so take all protected non-zeros
+                                                                Tab.status[v] = 's';                                             
+                                                                Tab.costs[v] = JJgroesse;
+                                                                Tab.weight[v] = JJgroesse;                                                                               
+                                                            }else{
+                                                                Tab.costs[v] = 1;
+                                                                Tab.weight[v] = 1;
+                                                            }
+                                                        }
+                                                        //solve the problem with adjusted protection levels (Minpl):
+                                                        ReturnCode = Suppress_FCP(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal); 
+                                                        //check again if any originally protected cells are now suppressed (status == 'm'): 
+                                                        CellsSuppressed.assign(JJgroesse,0);//Set CellsSuppressed vector back to all 0s, since JJ Table changed after solving (Minpl)
+                                                        for(int v=0;v<JJgroesse;v++){
+                                                            if((Tab.status[v] =='m')){
+                                                               CellsSuppressed[v]=1;
+                                                            }                                            
+                                                        }
+                                                        //check if any originally protected cells are now suppressed (status == 'm'):                                   
+                                                        protectedsuppressed =false;//set back to false, could be true from previous use
+                                                        for(int v=0;v<JJgroesse;v++){
+                                                           if ((CellsProtected[v] == 1)&& (CellsSuppressed[v]==1)){// TRUE <==> cell v of JJ Table was protected and is now a secondary suppression
+                                                               protectedsuppressed =true;
+                                                               break;
+                                                           }
+                                                        }
+                                                        if(!protectedsuppressed){//None of the originally protected cells got suppressed. That means, that the Optimization problem with the 
+                                                            realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form
+                                                            for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+                                                                if(Tab.upl[v] !=0){//give all primary unsafe cells minimal upl and lpl value. "Tab.upl[v] !=0" ==> upper bound not 0, so its a primary unsafe cell.
+                                                                    Tab.upl[v]=1.000;//has to be the smallest possible value > "0", for now its 1.0...
+                                                                    Tab.lpl[v]=1.000;
+                                                                }
+                                                            }
+                                                        }                                        
+                                                        if(protectedsuppressed){
+                                                            int dims = Tab.Dim();
+                                                            std::vector<int> Gijk;
+                                                            Gijk.resize(dims);
+                                                            std::vector<int> Divs;           
+                                                            Divs.resize(dims);
+                                                            for (tel=1;tel<dims;tel++){       
+                                                                Divs[tel-1] = Tab.N[dims-tel];
+                                                            }
+                                                            Divs[dims-1]=1;
+                                                            for(int v=0;v<JJgroesse;v++){//iterate over all cells in JJTable
+                                                                if (Getijk(v,Gijk,Divs)){//is a marginal cell of the JJ table ==> change nothing                                                                                                                                           
+                                                                }else{//interior cell ==> give status 'f'
+                                                                    BTab[Tab.baseijk[v]]->status ='f';//in the Basetable                                                                
+                                                                }
+                                                            }
+                                                           BTab.PrintData();
+                                                           realdim = FillTable(Tab, SubGTabs[j-1], BTab, MaxBounds, DISTANCE==0, MaxCost);//set JJ Table back to the original form
+                                                           BTab.PrintData();                                                   
+                                                           ReturnCode = 0;
+                                                           normalsuppress = false;                                                  
+                                                        }                                
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } 
+                                    // ==========================================================
+                                    // ENDE FCP-Workaround Block
+                                    // ==========================================================
+
+                                    ///////////////////////////////////////////////////////////////// 
+                                    Tab.SaveBasisStatsBefore(TableList,BTab); // Save statuses of table before JJ               
+                                    if(normalsuppress){
+                                        try                                       // Apply protection (JJ)
+                                        {
+                                            /*if (DISTANCE!=0) 
+                                                ReturnCode = Suppress(Solver,Tab,realdim,false,MaxCost,Hierarchical,ObjVal);
+                                            else
+                                                ReturnCode = Suppress(Solver,Tab,realdim,true,MaxCost,Hierarchical,ObjVal);*/
+                                            ReturnCode = Suppress(Solver,Tab,realdim,DISTANCE==0,MaxCost,Hierarchical,ObjVal);
+                                        }
+                                        catch(int code)
+                                        {
+                                            WriteErrorToLog(LogName,code);
+                                            CloseSolver(Solver);
+                                            return(code);
+                                        }
+                                        JJTotalTime += JJTime;		       
+                                        Update(BTab, Tab, ReturnCode, MaxBounds); // Update suppressions in BTab only if normalsuppress was used (NEW from FCP Approach)	
+                                    }        
+                                    	       
                                     Tab.SaveBasisStatsAfter(TableList,BTab);  // Save statuses of table after JJ
-                                    ListsOfTables[TableName] = TableList;
+                                    ListsOfTables[TableName] = TableList;                                    
                                     break;
+                                }
                                 case -90:      // Error: stop
                                     LogPrintf(LogName,"Error in TestNewTable()\nExiting\n");
                                     //fcloseall();
@@ -1299,8 +1812,13 @@ long HiTaSCtrl::AHiTaS(const char* ParsFile, const char* FilesFile, long MaxTime
                     fclose(Info);
                                 
                     TabUit=OpenFile(FileName.c_str(),"w");
+                    
+//                    BTab.PrintData();//for debugging FCP Approach 
+//                    BTab.APrintTabel(*TabUit,"f");  //debug FCP
+//                    fclose(TabUit);                 //debug FCP
+//                    BTab.Overwritefrozenstatus();//set all cellstatus 'f' back to 'm'
 	 
-                    BTab.APrintTabel(*TabUit,"bm");  //Only write coordinates of secondary suppressions
+                    BTab.APrintTabel(*TabUit,"bmf");  //Only write coordinates of secondary suppressions
                                 
                     fclose(TabUit);
 

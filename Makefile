@@ -17,19 +17,22 @@ CP              = cp -p
 32BIT           = true  # is the default
 #32BIT           = false
 
-SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.2
+#SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.0.2
+SWIGDIR         = D:/Peter-Paul/Documents/Thuiswerk/Programmatuur/swigwin-4.5.0
 
 ifeq ($(32BIT), false)  # 64 bit assumed
     BITS        = -m64 -D_LP64
     ARCH        = x86_64
     CND_PLATFORM= MinGW-Windows64
-    JAVADIR     = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_x64
+    #JAVADIR     = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_x64
+    JAVADIR     = ../../../Java/bellsoft-jdk21.0.12.1+1-windows-amd64/jdk-21.0.12.1
     GNUDIR      = C:/Progra~1/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin
 else                    # 32 bit assumed
     BITS        = -m32
     ARCH        = x86
     CND_PLATFORM= MinGW-Windows
-    JAVADIR     = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_i686
+    #JAVADIR     = ../../../Java/zulu8.52.0.23-ca-jdk8.0.282-win_i686
+    JAVADIR     = ../../../Java/bellsoft-jdk21.0.12.1+1-windows-i586/jdk-21.0.12.1
     GNUDIR      = C:/Progra~2/mingw-w64/i686-8.1.0-win32-sjlj-rt_v6-rev0/mingw32/bin
 endif
 
@@ -112,9 +115,12 @@ endif
 
 # Object Directory
 OBJECTDIR       = $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)
+SOURCES		= $(wildcard src/*.cpp)
+OBJECTS		= $(patsubst src/%.cpp, $(OBJECTDIR)/src/%.o, $(SOURCES))
+VERSIONOBJ	= $(OBJECTDIR)/src/Versioninfo.o
 
 # Object Files
-OBJECTFILES = \
+# OBJECTFILES = \
     $(OBJECTDIR)/src/ALList.o \
     $(OBJECTDIR)/src/AMiscFunc.o \
     $(OBJECTDIR)/src/AMyLoadProb.o \
@@ -131,34 +137,30 @@ LDLIBSOPTIONS   = $(CSPLIBS) $(SOLVERSLIBS) $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PL
 # CC Compiler Flags
 SFLAGS          = -c++ -I./src -java -package $(JAVAPACKAGE) -outdir $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
 #CXXFLAGS        = -ggdb -DSECBOUNDS $(BITS) -fPIC -malign-double -std=c++11 -Wall
-CXXFLAGS        = -g -O2 -DSECBOUNDS $(BITS) $(ADDCXX) -fPIC -std=c++11 -Wall -fno-strict-aliasing
+CXXFLAGS        = -g -O2 -DSECBOUNDS $(BITS) $(ADDCXX) -fPIC -std=c++11 -Wno-unused-function -Wall -fno-strict-aliasing
 #CXXFLAGS        = -ggdb -O0 -DSECBOUNDS $(BITS) -fPIC -std=c++11 -Wall -fno-strict-aliasing
 LDFLAGS         = $(CXXFLAGS) -Wl,--subsystem,windows -Wl,--kill-at -shared 
 
 .PHONY: all clean
 
-all:
-	$(MKDIR) -p $(OBJECTDIR)/src
-	$(MKDIR) -p $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
-
-	$(WINDRES) ./src/Versioninfo.rc $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)/src/Versioninfo.o
-	$(SWIG) $(SFLAGS) -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/ALList.o src/ALList.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMiscFunc.o src/AMiscFunc.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/AMyLoadProb.o src/AMyLoadProb.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/ATabs.o src/ATabs.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/Adefs.o src/Adefs.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/Ahier.o src/Ahier.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/Amyio.o src/Amyio.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl.o src/HiTaSCtrl.cpp
-	$(CXX) -c $(CXXFLAGS) -Wno-unused-function $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/HiTaSCtrl_wrap.o src/HiTaSCtrl_wrap.cpp
-	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) -o $(OBJECTDIR)/src/WrapCSP.o src/WrapCSP.cpp
+all:	setup $(VERSIONOBJ) $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/libtauhitas.$(CND_DLIB_EXT) $(OBJECTFILES) $(LDLIBSOPTIONS) 
-
 # Copy .dll and .java files to tau-argus development directory
 	$(CP) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/libtauhitas.$(CND_DLIB_EXT) ../tauargus/$(LIBNAME).dll
 	$(CP) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/*.java ../tauargus/src/tauargus/extern/tauhitas
 
+setup:
+	$(MKDIR) -p $(OBJECTDIR)/src
+	$(MKDIR) -p $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)
+	$(SWIG) $(SFLAGS) -o ./src/HiTaSCtrl_wrap.cpp hitasctrl.swg
+	
+$(VERSIONOBJ): ./src/Versioninfo.rc
+	$(WINDRES) $< $@
+	
+$(OBJECTDIR)/src/%.o: src/%.cpp
+	$(CXX) -c $(CXXFLAGS) $(SOLVERSINC) $(JAVAINC) $< -o $@
+
 clean:
 	$(RM) -r $(CND_BUILDDIR)/$(CND_CONF)
+	$(RM) $(SRCDIR)/*_wrap.*
 	$(RM) $(CND_DISTDIR)/$(CND_CONF)/$(CND_PLATFORM)/*.$(CND_DLIB_EXT)

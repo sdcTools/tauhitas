@@ -52,7 +52,7 @@ double seconds()
 
 // Returns TRUE if cell in margin
 //static bool Getijk(int m, Vector<int>& Gijk, Vector<int> TabDims)
-static bool Getijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
+bool Getijk(int m, std::vector<int>& Gijk, std::vector<int> TabDims)
 {
     // Assume that Gijk.size() >= 1
     assert(Gijk.size()>=1);
@@ -237,6 +237,8 @@ static void SetCell(JJTable& Tab, int m, cell* BCell)
                         buffer.append(" should not be possible in SetCel\n");
 			LogPrintf(LogName,buffer);
 		        break;
+          case 'f':     Tab.status[m] = 'f'; //added for FCP
+                        break;
 	}
     if (DISTANCE==0)
 	  Tab.costs[m] = BCell->CelCost;
@@ -458,8 +460,7 @@ static void SetCountBounds(JJTable& Tab, CountInfo& Y, TotCountInfo &Yc)
                             DoIt = !DOSINGLEWITHSINGLE;	// If DOSINGLEWITHSINGLE = true then already dealt with in DoSingletons
 			else					// One singleton and one dominance unsafe cell
                             DoIt = !DOSINGLEWITHMORE;	// If DOSINGLEWITHMORE = true then already dealt with in DoSingletons
-                    }
-                    else DoIt = true; // Two cells, no singletons
+                        }
                 }
 		//} // Only DoIt possible if (rowcount <= MINCOUNT) && (Cellen->size() > 1)
 					
@@ -1014,6 +1015,101 @@ int Suppress(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& M
         CSPsolution(Solver,&lcost, &ucost, Tab.status);
   }
   ObjVal = (int) ucost;
+  CSPfreeprob(Solver);
+
+  JJTime = (double) (clock()-start)/CLOCKS_PER_SEC;
+
+  // Check for feasibility: infeasible if lcost = ucost = INF
+  if ((lcost >= CSPGetDoubleConstant(Solver,JJINF) - 0.1) && (ucost >= CSPGetDoubleConstant(Solver,JJINF) - 0.1))
+  {
+        FUit = OpenFile(PrepFile("InFeas.dat").c_str(),"w");
+        
+	Tab.PrintData(*FUit);
+	fclose(FUit);
+    return (9); // Go back to main program
+  }
+
+  // Check for "no solution" or BackTracking
+  for (i=0;i<Tab.Size();i++)
+  { // Marginal additionally suppressed
+	if (Hierarch != 1) // i.e. hierarchical
+        {
+                marg = 1;
+                for (j=1;(j<=Tab.Dim()) && (marg!=0);j++)
+                //marg *= Tab.ijk[j][i];      // if marg==0 then marginal cell
+                marg *= Tab.ijk[j-1][i];      // if marg==0 then marginal cell
+
+                if ((Tab.status[i]=='m') && (marg==0)) 
+                {
+                        ReturnCodeE = 2; break; // Backtracken (at least one cell)
+                }
+                if (Tab.status[i] == 'x')
+                {
+                        ReturnCodeE = 5; break; // NoSolution
+                }
+        }
+  }
+
+  switch (ReturnCodeE)
+  {
+     case  0: {return(0);}
+     case  2: {return(100);}   // Marginal suppressed: backtracking
+
+     case  5: {return(5);}     // Error: x-status
+     default: {return(-10);}   // Unknown error
+  }
+}
+
+//Suppression for Frozen Cell Approach
+int Suppress_FCP(const char* Solver, JJTable& Tab, int Rdim, bool DoCosts, double& MaxCost, int Hierarch,  int &ObjVal){
+    fflush(stdout);
+clock_t start;
+  FILE* FUit;
+  int lcost, ucost;
+  int i, marg, j;
+  int ReturnCodeE=0; 
+  int Load;
+
+  JJTime=0;
+
+  if (Tab.NumberOfSafeCells==Tab.Size()) return (1); // Only safe cells: nothing to do
+
+  if (Tab.NumberOfUnsafeCells==Tab.Size()) return (2); // Only unsafe cells: nothing to do
+  
+if (PPDEBUG)
+  {
+    FUit = OpenFile(PrepFile("TestTabOut.dat").c_str(),"a");
+        for (i=0;i<Tab.Size();i++)
+    {
+        fprintf(FUit,"%3d %15.5lf %15.5lf %5d %5.5f %5.5f %c\n",i,Tab.data[i],Tab.costs[i],Tab.weight[i], Tab.lpl[i], Tab.upl[i], Tab.status[i]);
+    }
+    fclose(FUit);
+  }
+  
+//  if (PPDEBUG)
+//  {
+//      FUit = OpenFile(LogName.c_str(),"a");
+//      fprintf(FUit,"\nMinimal Marginal Cost: %d",MinMargCost);
+//      fprintf(FUit,"\nMaxCost: %lf\n",MaxCost);
+//      fclose(FUit);
+//  }
+
+  start = clock();
+  
+  Load = LoadTableIntoPCSP(Solver,Tab);
+
+  if (Load != 0) 
+  {
+	  LogPrintf(LogName,"Not able to load problem\n");
+	  WriteErrorToLog(LogName,HITAS_JJNOTLOADED);
+	  throw(HITAS_JJNOTLOADED);
+  }
+
+  CSPoptimize(Solver,NULL);
+
+  CSPsolution(Solver,&lcost, &ucost, Tab.status);
+  ObjVal = (int) ucost;
+
   CSPfreeprob(Solver);
 
   JJTime = (double) (clock()-start)/CLOCKS_PER_SEC;

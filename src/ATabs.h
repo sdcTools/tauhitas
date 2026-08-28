@@ -94,6 +94,7 @@ class Table
     int PrintData();
     void APrintTabel(FILE& uitfile, const char* States);
     void PrintStatusCells(const char* States, InExCodeLijst& TerugLijst, FILE& out);
+    void Overwritefrozenstatus();
 };
 
 // Tabel in formaat om aan JJ-routines te voeren

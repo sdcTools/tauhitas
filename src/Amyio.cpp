@@ -100,8 +100,8 @@ void PrintConstants(const char* WegFileName, int M)
 #endif
  
   fprintf(weg,"MINCOUNT : %*d (%d is safe)\n",a,MINCOUNT,MINCOUNT+1);
-  fprintf(weg,"LOWERMARG: %*lf\n",a,LOWERMARG);
-  fprintf(weg,"UPPERMARG: %*lf\n",a,UPPERMARG);
+  fprintf(weg,"LOWERMARG: %*.*lf\n",a,2,LOWERMARG);
+  fprintf(weg,"UPPERMARG: %*.*lf\n",a,2,UPPERMARG);
   if (DOLIFTUP) fprintf(weg,"DOLIFTUP : %*s\n",a,"true");
   else fprintf(weg,"DOLIFTUP : %*s\n",a,"false");
   fprintf(weg,"MINTABVAL: %*.*lf\n",a,2,MINTABVAL);
@@ -136,14 +136,15 @@ void ReadConstants(const char* ConstFileName)
   FILE* ConstFile;
   int i;
 
-  char constants[][20] = {"MINCOUNT","LOWERMARG","UPPERMARG","MINTABVAL","MAXTABVAL","DISTANCE",
+  char constants[][20] = {"MINCOUNT","LOWERMARG","UPPERMARG",
+	                  "MINTABVAL","MAXTABVAL","DISTANCE",
 		          "D1","D2","D3","D4",
 		          "APRIORI","APRIORILB","APRIORIUB","MAXWEIGHT","LINKED","DECIMALS"};
 
   ConstFile = OpenFile(ConstFileName,"r");
   
   // Eerst defaults zetten
-  MINCOUNT=3; MINTABVAL=0; UPPERMARG=1.1; LOWERMARG=0.9;
+  MINCOUNT=3; LOWERMARG=0.9; UPPERMARG=1.1; MINTABVAL=0;
   DISTANCE=0; MAXTABVAL=20000000; MAXWEIGHT=20000; 
   DECIMALS=0;
   LINKED=0;  // Default: no linked tables
@@ -192,8 +193,10 @@ void ReadConstants(const char* ConstFileName)
 		 }
 		 break;
                 }; // MINCOUNT + 1 is safe
-     case 1:    {LOWERMARG = atof(cat);break;};           
-     case 2:    {UPPERMARG = atof(cat);break;};
+     case 1:	{LOWERMARG = atof(cat);break;};
+     //case 1:	{LOWERMARG = 0.99999;break;};
+     case 2:	{UPPERMARG = atof(cat);break;};
+     //case 2:	{UPPERMARG = 1.00001;break;};
      case 3:	{MINTABVAL = atof(cat);break;};
      case 4:	{MAXTABVAL = atof(cat);break;};
      case 5:	{DISTANCE  = atoi(cat);break;};
